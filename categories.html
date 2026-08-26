@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Categories</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="transactions.html">Transactions</a>
+      <a href="categories.html" class="active">Categories</a>
+      <a href="#">Reports</a>
+      <a href="#">Settings</a>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="flex-between mb-4">
+        <div>
+          <h1>Categories</h1>
+          <p class="text-soft">Example categories that can be used</p>
+        </div>
+        <button class="btn btn-primary" id="add-category-btn" type="button">
+          + New category
+        </button>
+      </div>
+
+      <!-- DEFAULT CATEGORIES: a starter set every new profile gets.
+           Rendered here as static examples — your JS can either
+           leave these as fixed defaults or load them from the same
+           data source as user-created ones, however you design it. -->
+      <section class="mb-4">
+        <h2>Example categories</h2>
+        <div class="widget-grid" id="default-categories-grid">
+
+          <div class="card category-card" data-category-id="groceries" data-editable="false">
+            <div class="flex-between mb-2">
+              <span class="tag" style="background: var(--positive);">Groceries</span>
+            </div>
+            <p class="field-hint" style="margin:0;">No limit set</p>
+          </div>
+
+          <div class="card category-card" data-category-id="rent" data-editable="false">
+            <div class="flex-between mb-2">
+              <span class="tag" style="background: var(--ink-soft);">Rent</span>
+            </div>
+            <p class="field-hint" style="margin:0;">No limit set</p>
+          </div>
+
+          <div class="card category-card" data-category-id="dining" data-editable="false">
+            <div class="flex-between mb-2">
+              <span class="tag" style="background: var(--accent);">Dining out</span>
+            </div>
+            <p class="field-hint" style="margin:0;">No limit set</p>
+          </div>
+
+          <div class="card category-card" data-category-id="transport" data-editable="false">
+            <div class="flex-between mb-2">
+              <span class="tag" style="background: var(--negative);">Transport</span>
+            </div>
+            <p class="field-hint" style="margin:0;">No limit set</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- USER-CREATED CATEGORIES: starts empty. Your JS appends one
+           .category-card per saved category (same structure as
+           above, but data-editable="true" so Edit/Delete controls
+           show — see the commented example). -->
+      <section>
+        <h2>Your categories</h2>
+        <div class="widget-grid" id="user-categories-grid">
+          <!--
+          Example of a user-created category card your JS should add:
+
+          <div class="card category-card" data-category-id="cat_004" data-editable="true">
+            <div class="flex-between mb-2">
+              <span class="tag" style="background: #6B4F9E;">Hobbies</span>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary" data-action="edit">Edit</button>
+                <button class="btn btn-danger" data-action="delete">Delete</button>
+              </div>
+            </div>
+            <p class="field-hint" style="margin:0;">Limit: $150 / month</p>
+          </div>
+          -->
+        </div>
+
+        <p class="field-hint mt-4" id="user-categories-empty">
+          You haven't created any categories yet.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ADD/EDIT CATEGORY FORM: same pattern as the transaction modal —
+       hidden until JS shows it, reused for both add and edit. -->
+  <div class="center-screen" id="category-modal" style="display:none; position:fixed; inset:0; background: rgba(31,42,36,0.35);">
+    <div class="card" style="width:100%; max-width:380px;">
+      <h2 id="category-modal-title">New category</h2>
+
+      <form id="category-form">
+        <input type="hidden" id="category-id" name="category-id" />
+
+        <div class="field">
+          <label for="category-name">Name</label>
+          <input type="text" id="category-name" name="category-name" placeholder="e.g. Hobbies" required />
+        </div>
+
+        <!-- "Cool widget options" from your spec — starting simple
+             with a color picker so each category's .tag can be
+             visually distinct. Easy to extend later (icon picker,
+             etc.) once the basic save/load flow works. -->
+        <div class="field">
+          <label for="category-color">Color</label>
+          <input type="color" id="category-color" name="category-color" value="#c98a3e" />
+        </div>
+
+        <div class="field">
+          <label for="category-limit">Monthly limit (optional)</label>
+          <input type="number" id="category-limit" name="category-limit" step="0.01" placeholder="0.00" />
+          <p class="field-hint">Leave blank for no limit.</p>
+        </div>
+
+        <div class="flex gap-3 mt-4">
+          <button type="submit" class="btn btn-primary btn-block">Save</button>
+          <button type="button" class="btn btn-secondary btn-block" id="category-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="js/categories.js"></script>
+</html>

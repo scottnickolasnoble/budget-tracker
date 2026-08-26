@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Transactions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="transactions.html" class="active">Transactions</a>
+      <a href="categories.html">Categories</a>
+      <a href="#">Reports</a>
+      <a href="#">Settings</a>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="flex-between mb-4">
+        <div>
+          <h1>Transactions</h1>
+          <p class="text-soft" id="month-label"></p>
+        </div>
+        <button class="btn btn-primary" id="add-transaction-btn" type="button">
+          + Add transaction
+        </button>
+      </div>
+
+      <!-- FILTER BAR: all inputs here are read by your JS to decide
+           which rows of the (eventually CSV/DB-backed) transaction
+           list to show. Nothing here filters on its own yet — these
+           are just controls waiting for event listeners. -->
+      <section class="card mb-4">
+        <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
+
+          <div class="field" style="margin-bottom:0; min-width: 160px;">
+            <label for="filter-month">Month</label>
+            <input type="month" id="filter-month" name="filter-month" />
+          </div>
+
+        <div class="field" style="margin-bottom:0; min-width: 160px; position: relative;">
+			<label for="category-filter-btn">Category</label>
+			<button type="button" class="btn btn-secondary" id="category-filter-btn" style="display:flex; align-items:center; justify-content:space-between; gap: var(--space-2);">
+				<span id="category-filter-label">All categories</span>
+				<span style="font-size: 1rem;">▾</span>
+			</button>
+			<div id="category-filter-panel" style="display:none; flex-direction: row; flex-wrap: wrap; gap: var(--space-2); width: 280px; position:absolute; background:white; border:1px solid var(--ink-soft); border-radius: var(--radius); padding: var(--space-3); z-index: 10; margin-top: 4px;">
+				<label style="display:flex; align-items:center; justify-content:flex-start; gap: var(--space-2); width:100%; border-bottom:1px solid var(--line); padding-bottom: var(--space-2); margin-bottom: var(--space-2);">
+					<input type="checkbox" id="category-filter-all" value="all" checked style="margin:0; width:auto; padding:0; flex-shrink:0;" />
+					<span style="white-space:nowrap;">All categories</span>
+				</label>
+			<div id="category-filter-options" style="display:flex; flex-wrap:wrap; gap: var(--space-2);">
+    <!-- populateCategoryFilterOptions() fills this in -->
+				</div>
+			
+			<!-- JS populates checkboxes here -->
+			</div>
+		</div>
+
+          <div class="field" style="margin-bottom:0; min-width: 160px;">
+            <label for="filter-type">Type</label>
+            <select id="filter-type" name="filter-type">
+              <option value="all">All</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+			<div class="field" style="margin-bottom:0; min-width: 140px;">
+				<label for="filter-payment">Payment</label>
+				<select id="filter-payment" name="filter-payment">
+				<option value="all">All payments</option>
+				<option value="cash">Cash</option>
+				<option value="credit">Credit</option>
+			</select>
+			</div>
+          <div class="field" style="margin-bottom:0; flex: 1; min-width: 200px;">
+            <label for="filter-search">Search</label>
+            <input type="text" id="filter-search" name="filter-search" placeholder="Search description…" />
+          </div>
+
+          <button class="btn btn-secondary" id="filter-reset-btn" type="button">
+            Reset
+          </button>
+
+        </div>
+      </section>
+
+      <!-- LEDGER TABLE: tbody starts empty on purpose. Your JS reads
+           the transaction data (CSV row, later DB record) and builds
+           one <tr> per transaction, matching the structure of the
+           commented-out example row below. -->
+      <section class="card">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Amount</th>
+			  <th>Payment Type</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body">
+            <!--
+            Example of one row your JS should generate per transaction:
+
+            <tr data-id="txn_001">
+              <td>Aug 14</td>
+              <td>Trader Joe's</td>
+              <td><span class="tag">Groceries</span></td>
+              <td class="figure negative">-$54.20</td>
+              <td>
+                <button class="btn btn-secondary" data-action="edit">Edit</button>
+                <button class="btn btn-danger" data-action="delete">Delete</button>
+              </td>
+            </tr>
+            -->
+          </tbody>
+        </table>
+
+        <p class="field-hint text-center mt-4" id="transactions-empty">
+          No transactions yet for this filter. Add one to get started.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ADD/EDIT TRANSACTION FORM: hidden by default (inline style).
+       Your JS toggles this — e.g. remove style="display:none" when
+       "+ Add transaction" or an "Edit" button is clicked. The same
+       form can serve both add and edit: for edit, pre-fill the
+       fields and swap what the submit handler does. -->
+<div class="center-screen" id="transaction-modal" style="display:none; position:fixed; inset:0; background: rgba(31,42,36,0.35);">
+    <div class="card" style="width:100%; max-width:420px;">
+      <h2 id="transaction-modal-title">Add transaction</h2>
+      <form id="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id" />
+        <div class="field">
+          <label for="transaction-date">Date</label>
+          <input type="date" id="transaction-date" name="transaction-date" required />
+        </div>
+        <div class="field">
+          <label for="transaction-description">Description</label>
+          <input type="text" id="transaction-description" name="transaction-description" placeholder="e.g. Trader Joe's" required />
+        </div>
+        <div class="field">
+          <label for="transaction-category">Category</label>
+          <select id="transaction-category" name="transaction-category" required>
+            
+			<!-- Populated by JS from saved categories. Every
+                 transaction must have one — enforce that in your
+                 submit handler (per your spec: "must be categorized"). -->
+          </select>
+        </div>
+        <div class="field">
+          <label for="transaction-amount">Amount</label>
+          <input type="number" id="transaction-amount" name="transaction-amount" step="0.01" placeholder="0.00" required />
+        </div>
+        <div class="field">
+          <label for="transaction-type">Type</label>
+          <select id="transaction-type" name="transaction-type" required>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="transaction-payment-method">Payment Method</label>
+          <select id="transaction-payment-method" name="transaction-payment-method" required>
+            <option value="cash">Cash</option>
+            <option value="credit">Credit</option>
+          </select>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button type="submit" class="btn btn-primary btn-block">Save</button>
+          <button type="button" class="btn btn-secondary btn-block" id="transaction-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="js/transactions.js"></script>
+</html>

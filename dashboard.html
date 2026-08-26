@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- SIDEBAR NAV: the "ledger tabs". class="active" marks the
+         current page — for now it's hardcoded on Dashboard, later
+         your JS (or just editing the class per page) controls this. -->
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="transactions.html">Transactions</a>
+      <a href="categories.html">Categories</a>
+      <a href="#">Reports</a>
+      <a href="#">Settings</a>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="flex-between mb-4">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="text-soft" id="dashboard-date">Loading date…</p>
+        </div>
+        <div class="flex gap-3">
+          <!-- Toggle for "Income mode" from your spec: hides cash-balance
+               tracking and just shows totals/accumulation. Your JS will
+               listen for this and show/hide widgets accordingly. -->
+          <button class="btn btn-secondary" id="income-mode-toggle" type="button" aria-pressed="false">
+            Income mode: Off
+          </button>
+          <button class="btn btn-secondary" id="edit-layout-btn" type="button">
+            Edit widgets
+          </button>
+          <button class="btn btn-primary" id="add-transaction-btn" type="button">
+            + Add transaction
+          </button>
+        </div>
+      </div>
+
+      <!-- WIDGET GRID: each .card is one widget. data-widget names them
+           so your JS can find, reorder, show/hide, or save layout
+           preferences (this is the "totally customizable" requirement —
+           the HTML/CSS just needs to render whatever widget list JS
+           decides is active). -->
+      <section class="widget-grid" id="widget-grid">
+
+        <div class="card" data-widget="cash-balance">
+          <div class="card-label">Cash balance</div>
+          <div class="card-value figure positive" id="cash-balance-value">$0.00</div>
+          <p class="field-hint mt-4" id="cash-balance-sub">Across all accounts</p>
+        </div>
+
+		<div class="card" data-widget="credit-accrued" style="position:relative;">
+          <div class="card-label">Credit accrued</div>
+          <div class="card-value figure negative" id="credit-accrued-value">$0.00</div>
+          <p class="field-hint mt-4" id="credit-accrued-sub">Owed on credit accounts</p>
+          <!-- Positioned absolutely, out of normal document flow —
+               this cannot move or resize the label/value/hint above
+               (they are completely untouched), and cannot make the
+               card itself bigger, since absolutely positioned
+               elements don't count toward their parent's size. It
+               just sits visually in the card's top-right corner. -->
+          <div style="position:absolute; top:var(--space-5); right:20px; text-align:left;">
+            <div style="margin-bottom:10px;">
+              <div style="font-size: 0.65rem; color: var(--ink-soft);">Start Statement</div>
+              <input type="date" id="start-statement-date" style="font-size: 0.7rem;" />
+            </div>
+            <div style="margin-top:10px;">
+              <div style="font-size: 0.65rem; color: var(--ink-soft);">End Statement</div>
+              <input type="date" id="close-statement-date" style="font-size: 0.7rem;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-widget="monthly-spend">
+          <div class="card-label">This month's spending</div>
+          <div class="card-value figure" id="monthly-spend-value">$0.00</div>
+          <!-- Both pieces share one line (flex, space-between) so this
+               can't add a new row or grow the card — same font-size
+               as before, just split into two pieces on the same line. -->
+          <p class="field-hint mt-4" id="monthly-spend-sub" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>vs. last month</span>
+            <span id="last-month-spend-value" style="color: var(--negative);">$0.00</span>
+          </p>
+        </div>
+
+        <div class="card" data-widget="top-category" style="position:relative;">
+          <div class="flex-between" style="align-items:flex-start;">
+            <div class="card-label">Top category</div>
+            <!-- Small filter icon/button — doesn't grow the header
+                 row. The panel it opens is positioned absolutely, so
+                 it overlays on top of other content rather than
+                 pushing anything down or resizing the card. -->
+            <div style="display:flex; align-items:center; gap:4px;">
+				<span style="font-size:0.75rem; color: var(--ink-soft); font-weight: 600;">Exclude:</span>
+				<button type="button" id="top-category-filter-btn" title="Choose which categories to include" style="background:none; border:none; cursor:pointer; padding:0; font-size:1rem; line-height:1; color: var(--ink-soft);">
+					⚙
+				</button>
+			</div>
+          </div>
+          <div class="card-value" id="top-category-value">—</div>
+          <p class="field-hint mt-4" id="top-category-sub" style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="top-category-name">—</span>
+            <span>this month</span>
+          </p>
+
+          <!-- Filter panel — hidden by default, absolutely positioned
+               so opening it never changes the card's size. -->
+          <div id="top-category-filter-panel" style="display:none; flex-direction: row; flex-wrap: wrap; gap: var(--space-2); width: 280px; position:absolute; top:36px; right:var(--space-5); background:white; border:1px solid var(--ink-soft); border-radius: var(--radius); padding: var(--space-3); z-index: 10;">
+            <label style="display:flex; align-items:center; justify-content:flex-start; gap: var(--space-2); width:100%; border-bottom:1px solid var(--line); padding-bottom: var(--space-2); margin-bottom: var(--space-2);">
+              <input type="checkbox" id="top-category-filter-all" value="all" checked style="margin:0; width:auto; padding:0; flex-shrink:0;" />
+              <span style="white-space:nowrap;">All categories</span>
+            </label>
+            <div id="top-category-filter-options" style="display:flex; flex-wrap:wrap; gap: var(--space-2);">
+              <!-- populateTopCategoryFilterOptions() fills this in -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- CATEGORY LIMITS: a wider card showing progress toward each
+           category's budget limit. Structured as a list so JS can
+           generate one .limit-row per category from your data. -->
+      <section class="card mt-4">
+        <div class="flex-between mb-4">
+          <h2 style="margin-bottom:0;">Category limits</h2>
+          <a href="categories.html" style="font-size:0.875rem;">Manage categories →</a>
+        </div>
+
+        <div id="category-limits-list">
+          <!-- Example row — your JS will loop over categories and
+               render one of these per category. Structure to copy:
+               <div class="limit-row"> tag, spent/limit figures, bar -->
+          <div class="limit-row" data-category="groceries">
+            <div class="flex-between mb-2">
+              <span class="tag">Groceries</span>
+              <span class="text-soft" style="font-size:0.875rem;">
+                <span class="figure" id="groceries-spent">$0</span> of
+                <span class="figure" id="groceries-limit">$0</span>
+              </span>
+            </div>
+            <div class="limit-bar">
+              <div class="limit-bar-fill" id="groceries-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="field-hint mt-4" id="category-limits-empty">
+          No categories with limits yet — set one up on the Categories page.
+        </p>
+      </section>
+
+      <!-- CHART: placeholder container. Your JS will draw into this
+           (e.g. with Chart.js or a canvas you build yourself) once
+           we get to charts — for now it's just a sized, styled box. -->
+      <section class="card mt-4">
+        <h2>Spending by category</h2>
+        <div id="chart-container" style="height: 260px; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--line); border-radius: var(--radius-sm);">
+          <p class="text-soft" style="margin:0;">Chart renders here</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="js/dashboard.js"></script>
+</html>

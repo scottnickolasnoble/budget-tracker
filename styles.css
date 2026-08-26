@@ -1,0 +1,422 @@
+/* =========================================================
+   LEDGER — shared design system for the budget tracker
+   =========================================================
+   How this file is organized (read top to bottom):
+   1. Design tokens (:root variables)   — the "palette" every page pulls from
+   2. Reset & base element styles       — fonts, colors, spacing defaults
+   3. Layout primitives                 — .container, .app-shell, .ledger-tabs
+   4. Components                        — buttons, cards, forms, tables
+   5. Utilities                         — small reusable helper classes
+ 
+   Concept: every page (login, dashboard, transactions, categories)
+   links this ONE file, so a change here updates the whole app.
+   ========================================================= */
+ 
+/* -----------------------------------------------------------
+   1. DESIGN TOKENS
+   Money apps live or die on trust and clarity, so the palette
+   is a calm "ledger book" ink-and-paper feel rather than a
+   flashy fintech blue. Numbers use a monospace face further
+   down so digits line up in columns like a real ledger.
+----------------------------------------------------------- */
+:root {
+  /* Color */
+  --paper: #EDEDE6;       /* app background — cool, slightly green paper */
+  --surface: #FFFFFF;     /* cards, panels, inputs */
+  --ink: #1F2A24;         /* primary text — deep forest-black */
+  --ink-soft: #5B6760;    /* secondary text */
+  --line: #D8D6CC;        /* hairline rules, borders, ledger lines */
+  --positive: #3F6B4F;    /* income / positive amounts */
+  --positive-bg: #E4ECE5;
+  --negative: #A34A3C;    /* expenses / negative amounts */
+  --negative-bg: #F4E4E0;
+  --accent: #C98A3E;      /* highlights, category tags, limits, focus */
+  --accent-ink: #5B3E15;
+ 
+  /* Type */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+ 
+  /* Spacing scale (multiples of 4px keep things visually consistent) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+ 
+  /* Shape & motion */
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 8px rgba(31, 42, 36, 0.08);
+  --transition: 150ms ease;
+}
+ 
+/* -----------------------------------------------------------
+   2. RESET & BASE STYLES
+----------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+ 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+ 
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+ 
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 var(--space-3);
+  color: var(--ink);
+}
+ 
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.125rem; }
+ 
+p { margin: 0 0 var(--space-3); }
+ 
+a {
+  color: var(--ink);
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+a:hover { text-decoration-color: var(--accent); }
+ 
+/* Any figure that represents money uses this class so digits
+   align in tidy columns — a functional reason for monospace,
+   not just decoration. */
+.figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+.figure.positive { color: var(--positive); }
+.figure.negative { color: var(--negative); }
+ 
+/* Visible keyboard focus everywhere — accessibility floor */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+ 
+/* -----------------------------------------------------------
+   3. LAYOUT PRIMITIVES
+----------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+ 
+/* Full-screen centered layout — used by the login page */
+.center-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+ 
+/* App shell: a ledger-tab sidebar + main content area.
+   This is the signature layout element — the nav looks like
+   the tabbed dividers in a physical ledger book. */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+ 
+.ledger-tabs {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+ 
+.ledger-tabs .brand {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  padding: 0 var(--space-5) var(--space-5);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-4);
+}
+ 
+.ledger-tabs a {
+  display: block;
+  padding: var(--space-3) var(--space-5);
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  border-left: 3px solid transparent;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+ 
+.ledger-tabs a:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+ 
+.ledger-tabs a.active {
+  color: var(--ink);
+  border-left-color: var(--accent);
+  background: var(--paper);
+  font-weight: 600;
+}
+ 
+.main-content {
+  flex: 1;
+  padding: var(--space-6) var(--space-7);
+}
+ 
+/* Widget grid — the customizable dashboard cards */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+ 
+/* Categories page specifically caps at 4 cards per row, regardless
+   of screen width — auto-fit alone would keep packing more columns
+   in on wider screens. */
+#default-categories-grid,
+#user-categories-grid {
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+}
+ 
+/* -----------------------------------------------------------
+   4. COMPONENTS
+----------------------------------------------------------- */
+ 
+/* Card — base surface for widgets, panels, the login box */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  box-shadow: var(--shadow);
+}
+ 
+.card-label {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-2);
+}
+ 
+.card-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+ 
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+ 
+.btn:active { transform: translateY(1px); }
+ 
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn-primary:hover { background: #2B392F; }
+ 
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-secondary:hover { border-color: var(--ink); }
+ 
+.btn-danger {
+  background: transparent;
+  color: var(--negative);
+  border-color: var(--negative-bg);
+}
+.btn-danger:hover { background: var(--negative-bg); }
+ 
+.btn-block { width: 100%; }
+ 
+/* Forms */
+.field {
+  margin-bottom: var(--space-4);
+}
+ 
+.field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  color: var(--ink);
+}
+ 
+.field input,
+.field select {
+  width: 100%;
+  padding: var(--space-3);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition);
+}
+ 
+.field input:focus,
+.field select:focus {
+  border-color: var(--accent);
+}
+ 
+.field-hint {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  margin-top: var(--space-2);
+}
+ 
+.field-error {
+  font-size: 0.8125rem;
+  color: var(--negative);
+  margin-top: var(--space-2);
+  display: none;
+}
+ 
+.field.has-error input {
+  border-color: var(--negative);
+}
+.field.has-error .field-error {
+  display: block;
+}
+ 
+/* Category tag — small pill used wherever a category is shown */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+ 
+/* Ledger table — used on the Transactions page.
+   Rows get a bottom hairline like a checkbook register. */
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+ 
+.ledger-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--ink);
+}
+ 
+.ledger-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+ 
+.ledger-table tr:hover td {
+  background: var(--paper);
+}
+ 
+/* Category limit rows (dashboard) — a label + a progress bar
+   showing spend against that category's budget limit. */
+.limit-row {
+  margin-bottom: var(--space-4);
+}
+.limit-row:last-child {
+  margin-bottom: 0;
+}
+ 
+.limit-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+ 
+.limit-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width var(--transition);
+}
+ 
+/* When JS determines a category is over its limit, it can add
+   this class to .limit-bar-fill to flip it to the negative color. */
+.limit-bar-fill.over-limit {
+  background: var(--negative);
+}
+ 
+/* -----------------------------------------------------------
+   5. UTILITIES
+----------------------------------------------------------- */
+.flex { display: flex; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+.text-soft { color: var(--ink-soft); }
+.text-center { text-align: center; }
+ 
+/* -----------------------------------------------------------
+   Responsive: below 720px, collapse the sidebar into a top bar.
+   We'll build this out further once the dashboard exists.
+----------------------------------------------------------- */
+@media (max-width: 720px) {
+  .app-shell { flex-direction: column; }
+  .ledger-tabs {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
