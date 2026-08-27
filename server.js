@@ -1,3 +1,16 @@
+/*
+require('dotenv').config();
+const { Pool } = require('pg');
+
+const pool = new Pool({
+	connectionString: process.env.DATABASE_URL,
+	ssl: { rejectUnauthorized: false }
+});
+
+pool.query('SELECT NOW()')
+.then(result => console.log('Database connected:', result.rows[0]))
+.catch(err => console.error('Database connection failed:', err));
+*/
 // Pull in Node's built-in file system tool — this is what lets
 // this file actually read and write real files on disk (like your
 // transactions.csv). It's built into Node, so no install needed.
