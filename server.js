@@ -34,42 +34,9 @@ app.use('/api/transactions', transactionsRouter);
 const categoriesRouter = require('./routes/categories');
 app.use('/api/categories', categoriesRouter);
 
-// Middleware: for every incoming request, first check if it matches
-// a real file sitting in the current folder ('.' means "this
-// project's root"). If it does, send that file back automatically —
-// this is what lets your browser actually load dashboard.html,
-// styles.css, transactions.js, etc. without you writing a route
-// for each one individually.
+const statementsRouter = require('./routes/statements');
+app.use('/api/statements', statementsRouter);
 
-
-// Middleware: enables your server to understand plain-text request
-// bodies. Without this, when your front end sends CSV text via
-// fetch, request.body inside your routes below would come back
-// empty/undefined — this is what makes request.body actually work.
-
-// Defines a GET route at the address /api/transactions.
-// GET = a request just asking for data, not sending anything.
-// Note: '/api/transactions' is just a made-up label — it has no
-// relation to any real file path, it's simply the string your
-// front end's fetch() call has to match to trigger this function.
-
-
-app.get('/api/statements', async function(request,response){
-	const fileContents = await fs.promises.readFile('data/statements.csv','utf8');
-	response.send(fileContents);
-})
-app.post('/api/statements', async function(request,response){
-	await fs.promises.writeFile('data/statements.csv',request.body);
-	response.send('saved');
-});
-
-
-
-// Starts the server and tells it to sit and listen for incoming
-// requests on port 3000. This is the line that keeps the process
-// alive and running (instead of finishing and exiting), and prints
-// a confirmation message to your terminal once it's up.
 app.listen(3000, function() {
 	console.log('Server running on http://localhost:3000');
 });
-//loadTransactions();
