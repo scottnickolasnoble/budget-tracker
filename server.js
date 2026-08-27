@@ -31,7 +31,8 @@ app.use(express.static('.'));
 const transactionsRouter = require('./routes/transactions');
 app.use('/api/transactions', transactionsRouter);
 
-
+const categoriesRouter = require('./routes/categories');
+app.use('/api/categories', categoriesRouter);
 
 // Middleware: for every incoming request, first check if it matches
 // a real file sitting in the current folder ('.' means "this
@@ -52,16 +53,6 @@ app.use('/api/transactions', transactionsRouter);
 // relation to any real file path, it's simply the string your
 // front end's fetch() call has to match to trigger this function.
 
-
-app.get('/api/categories', async function(request,response){
-	const fileContents = await fs.promises.readFile('data/categories.csv','utf8');
-	response.send(fileContents);
-});
-
-app.post('/api/categories', async function(request,response){
-	await fs.promises.writeFile('data/categories.csv',request.body);
-	response.send('Saved');
-});
 
 app.get('/api/statements', async function(request,response){
 	const fileContents = await fs.promises.readFile('data/statements.csv','utf8');
