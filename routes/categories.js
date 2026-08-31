@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
+const pool = require('../db/pool');
 
 router.get('/', async function(request, response){
 	const result = await pool.query('SELECT * FROM categories');

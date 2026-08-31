@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
+const pool = require('../db/pool');
 
 router.get('/', async function(request, response){
-	const fileContents = await fs.promises.readFile('data/transactions.csv', 'utf8');
-	response.send(fileContents);
+	const fileContents = await pool.query('SELECT * FROM transactions');
+	response.json(fileContents);
 });
 router.post('/', async function(request, response){
-	await fs.promises.writeFile('data/transactions.csv', request.body);
-	response.send('Saved');
+	const { date, description, amount, paymentmethod } = request.body;
+	const result = await pool.query(
+		'INSERT INTO transactions (date, description, amount, paymentmethod) VALUES ($1, $2, $3, $4) RETURNING *',
+		[date, description, amount, paymentmethod]
+	);
+	response.status(201).json(result.rows[0]);
 });
 
 module.exports = router;
