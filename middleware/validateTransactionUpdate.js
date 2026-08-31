@@ -7,3 +7,5 @@ function validateTransactionUpdate(req,res,next){
 
   next();
 }
+
+module.exports = validateTransactionUpdate;
