@@ -3,12 +3,16 @@ const router = express.Router();
 const fs = require('fs');
 
 router.get('/', async function(request, response){
-	const fileContents = await fs.promises.readFile('data/categories.csv', 'utf8');
-	response.send(fileContents);
+	const result = await pool.query('SELECT * FROM categories');
+	response.json(result.rows);
 });
 router.post('/', async function(request, response){
-	await fs.promises.writeFile('data/categories.csv', request.body);
-	response.send('Saved');
+	const {name, color, limit} = request.body;
+	const result = await pool.query(
+		'INSERT INTO categories (name, color, "limit") VALUES ($1, $2, $3) RETURNING *',
+		[name, color, limit]
+	);
+	response.status(201).json(result.rows[0]);
 });
 
 module.exports = router;
