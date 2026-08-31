@@ -107,27 +107,34 @@ transactionForm.addEventListener('submit', async function(event) {
 
 	if (transactionId === '') {
 		const newTransaction = {
-			id: Date.now(),
 			date: transactionDate,
 			description: transactionDescription,
-			category: transactionCategory,
+			category_id: transactionCategory,
 			amount: signedAmount,
-			paymentMethod: transactionPaymentMethod
+			paymentmethod: transactionPaymentMethod
 		};
-		transactions.push(newTransaction);
-	} else {
-		const transactionToUpdate = transactions.find(function(transaction) {
-			return transaction.id === Number(transactionId);
+		await fetch('/api/transactions', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(newTransaction)
 		});
-		transactionToUpdate.date = transactionDate;
-		transactionToUpdate.description = transactionDescription;
-		transactionToUpdate.category = transactionCategory;
-		transactionToUpdate.amount = signedAmount;
-		transactionToUpdate.paymentMethod = transactionPaymentMethod;
+	} else {
+		const updatedTransaction = {
+			date: transactionDate,
+			description: transactionDescription,
+			category_id: transactionCategory,
+			amount: signedAmount,
+			paymentmethod: transactionPaymentMethod
+			};
+		
+		await fetch(`/api/transactions/${transactionId}`, {
+			method: 'PATCH',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(updatedTransaction)
+		});
 	}
 
-	renderTransactions(transactions);
-	await saveTransactions();
+	await loadTransactions();
 	transactionForm.reset();
 	transactionModal.style.display = 'none';
 	
@@ -167,7 +174,7 @@ tbody.addEventListener('click',async function(event){
 	});
 function populateCategoryOptions(categories){
 	const optionsHTML = categories.map(function(category) {
-		return `<option value="${category.name}">${category.name}</option>`;
+		return `<option value="${category.id}">${category.name}</option>`;
 	});
 	categoryForm.innerHTML = optionsHTML.join('');
 }
@@ -195,7 +202,7 @@ function renderTransactions(transactionList) {
 	
 	transactionList.forEach(function(transaction) {
     const matchingCategory = categories.find(function(category) {
-    return category.name === transaction.category;
+    return category.id === transaction.category_id;
 	});
 	const tagColor = matchingCategory ? matchingCategory.color : 'var(--accent)';
 	const row = document.createElement('tr');
@@ -208,9 +215,9 @@ function renderTransactions(transactionList) {
     row.innerHTML = `
       <td>${transaction.date}</td>
       <td>${transaction.description}</td>
-      <td><span class="tag" style="background:${tagColor};">${transaction.category}</span></td>
+      <td><span class="tag" style="background:${tagColor};">${matchingCategory?.name ?? 'Uncategorized'}</span></td>
       <td class="figure ${amountClass}">${amountSign}$${amountAbs}</td>
-	  <td>${transaction.paymentMethod.charAt(0).toUpperCase() + transaction.paymentMethod.slice(1)}</td>
+	  <td>${transaction.paymentmethod.charAt(0).toUpperCase() + transaction.paymentmethod.slice(1)}</td>
       <td>
         <button class="btn btn-secondary" data-action="edit">Edit</button>
         <button class="btn btn-danger" data-action="delete">Delete</button>
@@ -259,9 +266,7 @@ function downloadCSV(csvString, fileName){
 
 async function loadTransactions(){
 	const response = await fetch('/api/transactions');
-	const text = await response.text();
-	const result = Papa.parse(text, {header: true, dynamicTyping: true});
-	transactions = result.data;
+	transactions = await response.json();
 	renderTransactions(transactions);
 }
 
@@ -277,9 +282,7 @@ async function saveTransactions(){
 
 async function loadCategories(){
 	const response = await fetch('/api/categories');
-	const text = await response.text();
-	const result = Papa.parse(text, {header: true, dynamicTyping: true});
-	categories = result.data;
+	categories = response.json();
 	populateCategoryOptions(categories);
 	populateCategoryFilterOptions(categories);
 }
