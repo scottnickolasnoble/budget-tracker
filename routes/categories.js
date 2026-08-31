@@ -17,9 +17,14 @@ router.post('/', validateCategory, async function(request, response){
 });
 router.delete('/:id', async function(request, response){
 	const { id } = request.params;
-	const result = await pool.query('DELETE FROM categories WHERE id = $1', id);
 	
-	response.status(201).json({message: 'Deleted'});
+	try{
+	await pool.query('DELETE FROM categories WHERE id = $1', [id]);
+	response.status(200).json({message: "Deleted"});
+	}
+	catch (error) {
+		response.status(409).json({error: "Cannot delete category - it is still being used by existing transactions"});
+	}
 });
 router.patch('/:id', validateCategoryUpdate, async function(request, response){
 	const { id } = request.params;
@@ -27,7 +32,7 @@ router.patch('/:id', validateCategoryUpdate, async function(request, response){
 	
 	const result = await pool.query('UPDATE categories SET name = $1, color = $2, "limit" = $3 WHERE id = $4 RETURNING *', [name, color, limit, id]);
 	
-	response.status(201).json(result.rows[0]);
-})
+	response.status(200).json(result.rows[0]);
+});
 
 module.exports = router;
