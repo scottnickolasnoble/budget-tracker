@@ -3,6 +3,11 @@ const router = express.Router();
 const pool = require('../db/pool');
 const validateCategory = require('../middleware/validateCategory');
 const validateCategoryUpdate = require('../middleware/validateCategoryUpdate');
+
+const isAuthenticated = require('../middleware/isAuthenticated');
+
+router.use(isAuthenticated); 
+
 router.get('/', async function(request, response){
 	const result = await pool.query('SELECT * FROM categories');
 	response.json(result.rows);

@@ -3,6 +3,10 @@ const router = express.Router();
 const pool = require('../db/pool');
 const validateTransactions = require('../middleware/validateTransactions');
 const validateTransactionUpdate = require('../middleware/validateTransactionUpdate');
+const isAuthenticated = require('../middleware/isAuthenticated');
+
+router.use(isAuthenticated); 
+
 router.get('/', async function(request, response){
 	const fileContents = await pool.query('SELECT * FROM transactions');
 	response.json(fileContents.rows);

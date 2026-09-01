@@ -9,7 +9,6 @@ const pool = new Pool({
 pool.query('SELECT NOW()')
 .then(result => console.log('Database connected:', result.rows[0]))
 .catch(err => console.error('Database connection failed:', err));
-
 // Pull in Node's built-in file system tool — this is what lets
 // this file actually read and write real files on disk (like your
 // transactions.csv). It's built into Node, so no install needed.
@@ -26,12 +25,16 @@ const express = require("express");
 const app = express();
 
 app.use(express.json());
-app.use(function(req, res, next) {
-  console.log('Body after json middleware:', req.body);
-  next();
-});
+
 app.use(express.static('.'));
 
+const session = require('express-session');
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	cookie: { maxAge: 1000 * 60 * 60 * 24 }
+}));
 const transactionsRouter = require('./routes/transactions');
 app.use('/api/transactions', transactionsRouter);
 
@@ -40,6 +43,9 @@ app.use('/api/categories', categoriesRouter);
 
 const statementsRouter = require('./routes/statements');
 app.use('/api/statements', statementsRouter);
+
+const authRouter = require('./routes/auth');
+app.use('/api/auth', authRouter);
 
 app.listen(3000, function() {
 	console.log('Server running on http://localhost:3000');
