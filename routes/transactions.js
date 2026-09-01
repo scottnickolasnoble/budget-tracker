@@ -26,9 +26,9 @@ router.patch('/:id', validateTransactionUpdate, async function(request, response
 	const { id } = request.params;
 	const { date, description, amount, paymentmethod, category_id} = request.body;
 	
-	const result = await pool.query('UPDATE transactions SET date = $1, description = $2, amount = $3,
+	const result = await pool.query(`UPDATE transactions SET date = $1, description = $2, amount = $3,
 	paymentmethod = $4, category_id = $5
-	WHERE id = $6 RETURNING *', [date, description, amount, paymentmethod, category_id, id]);
+	WHERE id = $6 RETURNING *`, [date, description, amount, paymentmethod, category_id, id]);
 	
 	response.status(200).json(result.rows[0]);
 });

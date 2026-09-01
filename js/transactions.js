@@ -146,13 +146,13 @@ tbody.addEventListener('click',async function(event){
 	const row = event.target.closest('tr');
 	if(event.target.dataset.action === 'delete'){
 		const idToDelete = Number(row.dataset.id);
-		transactions = transactions.filter(function(transaction){
-		return transaction.id !== idToDelete
+		await fetch(`/api/transactions/${idToDelete}`, {
+			method: 'DELETE'
 	});
 	
-	renderTransactions(transactions);
+	
 	applyFilters();
-	await saveTransactions();
+	await loadTransactions();
 	} else if(event.target.dataset.action === 'edit'){
 		const idToEdit = Number(row.dataset.id);
 		const transactionToEdit = transactions.find(function(transaction){
@@ -282,7 +282,7 @@ async function saveTransactions(){
 
 async function loadCategories(){
 	const response = await fetch('/api/categories');
-	categories = response.json();
+	categories = await response.json();
 	populateCategoryOptions(categories);
 	populateCategoryFilterOptions(categories);
 }

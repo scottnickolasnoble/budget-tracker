@@ -34,18 +34,24 @@ categoryForm.addEventListener("submit", async function(event){
 		color: categoryColor,
 		limit: categoryLimit
 		};
-	categories.push(newCategory);
-	} else {
-		const categoryToUpdate = categories.find(function(category) {
-			return category.id === Number(categoryId);
+		await fetch('/api/categories', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(newCategory)
 		});
-		categoryToUpdate.name = categoryName;
-		categoryToUpdate.color = categoryColor;
-		categoryToUpdate.limit = categoryLimit;
-	}
-	
-	renderCategories(categories);
-	await saveCategories();
+	} else {
+		const editCategory = {
+		name: categoryName,
+		color: categoryColor,
+		limit: categoryLimit
+	};
+	await fetch(`/api/categories/${categoryId}`, {
+			method: 'PATCH',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(editCategory)
+		});
+}
+	await loadCategories();
 	categoryForm.reset();
 	categoryModal.style.display = 'none';
 	
@@ -55,12 +61,12 @@ categoriesGrid.addEventListener('click', async function(event){
 	const categoryDiv = event.target.closest('.category-card');
 	if(event.target.dataset.action === 'delete'){
 		const idToDelete = Number(categoryDiv.dataset.categoryId);
-		categories = categories.filter(function(category){
-		return category.id !== idToDelete
+		await fetch(`/api/categories/${idToDelete}`, {
+			method: 'DELETE'
 	});
 	
-	renderCategories(categories);
-	await saveCategories();
+	await loadCategories();
+	
 	} else if(event.target.dataset.action === 'edit'){
 		const idToEdit = Number(categoryDiv.dataset.categoryId);
 		const categoryToEdit = categories.find(function(category){
@@ -106,43 +112,11 @@ function renderCategories(categoryList) {
 	})
 }
 
-function categoriesToCSV(categoriesList) {
-  const headers = ['id', 'name', 'color', 'limit','excludeFromTop'];
-  const headerRow = headers.join(',');
-
-  const rows = categoriesList.map(function(category) {
-    return headers.map(function(key) {
-		let value = String(category[key]);
-		if(value.includes('"')){
-			value = value.replace(/"/g, '""');
-		}
-		if(value.includes('"') || value.includes(',')){
-			return `"${value}"`;
-		}
-		return value;
-      
-    }).join(',');
-  });
-
-  return [headerRow, ...rows].join('\n');
-}
-
 async function loadCategories(){
 	const response = await fetch('/api/categories');
-	const text = await response.text();
-	const result = Papa.parse(text, {header: true, dynamicTyping: true});
-	categories = result.data;
+	categories = await response.json();
 	renderCategories(categories);
 }
 
-async function saveCategories(){
-	const csvText = categoriesToCSV(categories);
-	
-	await fetch('api/categories', {
-		method: 'POST',
-		headers: {'Content-Type': 'text/plain' },
-		body: csvText
-	});
-}
 
 loadCategories();

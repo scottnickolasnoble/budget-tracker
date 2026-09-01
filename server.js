@@ -24,7 +24,12 @@ const express = require("express");
 // function gives you back this central "app" — every route and
 // setting from here on is defined by calling a method on it.
 const app = express();
-app.use(express.text());
+
+app.use(express.json());
+app.use(function(req, res, next) {
+  console.log('Body after json middleware:', req.body);
+  next();
+});
 app.use(express.static('.'));
 
 const transactionsRouter = require('./routes/transactions');
