@@ -150,146 +150,6 @@ function getNextStartDefault(){
 	return nextDay.toISOString().slice(0, 10);
 }
 
-async function loadCashBalance(){
-	const cashBalanceLabel = document.getElementById('cash-balance-value');
-	let cashBalanceValue = 0;
-	const newTransaction = transactions.filter(function(transaction){
-		return transaction.paymentMethod === "cash";
-	})
-	newTransaction.forEach(function(transaction){
-		cashBalanceValue += transaction.amount;
-	})
-	cashBalanceLabel.textContent = cashBalanceValue < 0 ? `-$${Math.abs(cashBalanceValue).toFixed(2)}` : `$${cashBalanceValue.toFixed(2)}`;
-}
-function getDate(condition){
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = now.getMonth() + 1;
-	const monthPadded = month.toString().padStart(2,0);
-	const prevMonth = month === 1 ? 12: month - 1;
-	const prevYear = month === 1 ? year - 1 : year;
-	const prevMonthPadded = prevMonth.toString().padStart(2,0);
-	if(condition === "current"){
-	return `${year}-${monthPadded}`;
-	} else {
-		return `${prevYear}-${prevMonthPadded}`;
-	}
-}
-function updateCreditAccrued(){
-	const openStatement = statements.find(function(statement){
-		return statement.status === "open"
-	});
-	if (!openStatement){
-		document.getElementById('credit-accrued-value').textContent = "$0.00";
-		return;
-	}
-	let accrued = 0;
-	transactions.forEach(function(transaction){
-		if(transaction.date >= openStatement.startDate && transaction.paymentMethod === "credit" && !transaction.statementId){
-			accrued += Math.abs(transaction.amount);
-			
-		}
-	});
-	document.getElementById('credit-accrued-value').textContent = `$${accrued.toFixed(2)}`;
-}
-function monthlySpending(){
-	const currDate = getDate("current");
-	const prevDate = getDate("previous");
-	
-	let monthlySpendingValue = 0;
-	let prevMonthlySpending = 0;
-	transactions.forEach(function(transaction){
-		if(transaction.date.startsWith(currDate) && transaction.amount < 0){
-			monthlySpendingValue += Math.abs(transaction.amount);
-			
-		} else if(transaction.date.startsWith(prevDate) && !transaction.date.startsWith(currDate) && transaction.amount < 0){
-			prevMonthlySpending += Math.abs(transaction.amount);
-		}
-	})
-	monthlySpendingLabel.textContent = `$${monthlySpendingValue}`;
-	prevMonthlySpendingLabel.textContent = `$${prevMonthlySpending}`;
-	
-}
-function statementsToCSV(statementsList) {
-  const headers = ['id', 'startDate', 'closeDate', 'status'];
-  const headerRow = headers.join(',');
-
-  const rows = statementsList.map(function(statement) {
-    return headers.map(function(key) {
-		let value = String(statement[key]);
-		if(value.includes('"')){
-			value = value.replace(/"/g, '""');
-		}
-		if(value.includes('"') || value.includes(',')){
-			return `"${value}"`;
-		}
-		return value;
-      
-    }).join(',');
-  });
-
-  return [headerRow, ...rows].join('\n');
-}
-function loadCategoryTotals(){
-	const currentMonth = getDate("current");
-	categoryTotals = {};
-	transactions.forEach(function(transaction){
-		if (!transaction.date.startsWith(currentMonth)) {
-			return;
-		}
-		if(!categoryTotals[transaction.category]){
-			categoryTotals[transaction.category] = 0;
-		}
-		categoryTotals[transaction.category] += transaction.amount;
-	});
-
-	const includedEntries = Object.entries(categoryTotals).filter(function(entry){
-		const category = categories.find(function(c){
-			return c.name === entry[0];
-		});
-		return !category || !category.excludeFromTop;
-	});
-
-	if (includedEntries.length === 0) {
-		document.getElementById('top-category-value').textContent = "—";
-		document.getElementById('top-category-name').textContent = "—";
-		return;
-	}
-
-	const topCategoryEntry = includedEntries.reduce(function(highest, current){
-		return Math.abs(current[1]) > Math.abs(highest[1]) ? current : highest;
-	});
-
-	const topCategoryName = topCategoryEntry[0];
-	const topCategoryAmount = Math.abs(topCategoryEntry[1]);
-
-	document.getElementById('top-category-value').textContent = `$${topCategoryAmount.toFixed(2)}`;
-	document.getElementById('top-category-name').textContent = topCategoryName;
-
-	const matchingCategory = categories.find(function(category){
-		return category.name === topCategoryName;
-	});
-	document.getElementById('top-category-name').style.color = matchingCategory ? matchingCategory.color : '';
-}
-
-function categoriesToCSV(categoryList){
-	const headers = ['id','name','color','limit','excludeFromTop'];
-	const headerRow = headers.join(',');
-	
-	const rows = categoryList.map(function(category){
-		return headers.map(function(key){
-			let value = String(category[key]);
-			if(value.includes('"')){
-				value = value.replace(/"/g, '""');
-			}
-			if(value.includes('"') || value.includes(',')){
-				return `"${value}"`;
-			}
-			return value;
-		}).join(',');
-	});
-	return [headerRow, ...rows].join('\n');
-}
 function syncTopCategoryFilterAll(){
 	const allIncluded = categories.every(function(category){
 		return !category.excludeFromTop;
@@ -297,46 +157,6 @@ function syncTopCategoryFilterAll(){
 	document.getElementById('top-category-filter-all').checked = allIncluded;
 }
 
-
-function transactionsToCSV(transactionList) {
-  const headers = ['id', 'date', 'description', 'category', 'amount', 'paymentMethod','statementId'];
-  const headerRow = headers.join(',');
-
-  const rows = transactionList.map(function(transaction) {
-    return headers.map(function(key) {
-		let value = String(transaction[key]);
-		if(value.includes('"')){
-			value = value.replace(/"/g, '""');
-		}
-		if(value.includes('"') || value.includes(',')){
-			return `"${value}"`;
-		}
-		return value;
-      
-    }).join(',');
-  });
-
-  return [headerRow, ...rows].join('\n');
-}
-
-async function saveStatements(){
-	const csvText = statementsToCSV(statements);
-	
-	await fetch('api/statements', {
-		method: 'POST',
-		headers: {'Content-Type': 'text/plain' },
-		body: csvText
-	});
-}
-async function saveCategories(){
-	const csvText = categoriesToCSV(categories);
-	
-	await fetch('api/categories', {
-		method: 'POST',
-		headers: {'Content-Type': 'text/plain'},
-		body: csvText
-	});
-}
 async function loadTransactions(){
 	const response = await fetch('/api/transactions');
 	const text = await response.text();
@@ -345,13 +165,6 @@ async function loadTransactions(){
 	loadCashBalance();
 }
 
-async function loadStatements(){
-	const response = await fetch('/api/statements');
-	const text = await response.text();
-	const result = Papa.parse(text, {header: true, dynamicTyping: true});
-	statements = result.data;
-	
-}
 
 async function loadCategories(){
 	const response = await fetch('/api/categories');
@@ -360,23 +173,11 @@ async function loadCategories(){
 	categories = result.data;
 }
 
-async function saveTransactions(){
-	const csvText = transactionsToCSV(transactions);
-	
-	await fetch('api/transactions', {
-		method: 'POST',
-		headers: {'Content-Type': 'text/plain' },
-		body: csvText
-	});
-}
 
 async function init(){
 	await loadCategories();
 	await loadTransactions();
 	await loadStatements();
-	updateCreditAccrued()
-	monthlySpending();
-	loadCategoryTotals();
 	populateTopCategoryFilterOptions(categories);
 	const allIncluded = categories.every(function(category){
 	return !category.excludeFromTop;
