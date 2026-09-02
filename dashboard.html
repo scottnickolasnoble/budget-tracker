@@ -54,82 +54,7 @@
            preferences (this is the "totally customizable" requirement —
            the HTML/CSS just needs to render whatever widget list JS
            decides is active). -->
-      <section class="widget-grid" id="widget-grid">
-
-        <div class="card" data-widget="cash-balance">
-          <div class="card-label">Cash balance</div>
-          <div class="card-value figure positive" id="cash-balance-value">$0.00</div>
-          <p class="field-hint mt-4" id="cash-balance-sub">Across all accounts</p>
-        </div>
-
-		<div class="card" data-widget="credit-accrued" style="position:relative;">
-          <div class="card-label">Credit accrued</div>
-          <div class="card-value figure negative" id="credit-accrued-value">$0.00</div>
-          <p class="field-hint mt-4" id="credit-accrued-sub">Owed on credit accounts</p>
-          <!-- Positioned absolutely, out of normal document flow —
-               this cannot move or resize the label/value/hint above
-               (they are completely untouched), and cannot make the
-               card itself bigger, since absolutely positioned
-               elements don't count toward their parent's size. It
-               just sits visually in the card's top-right corner. -->
-          <div style="position:absolute; top:var(--space-5); right:20px; text-align:left;">
-            <div style="margin-bottom:10px;">
-              <div style="font-size: 0.65rem; color: var(--ink-soft);">Start Statement</div>
-              <input type="date" id="start-statement-date" style="font-size: 0.7rem;" />
-            </div>
-            <div style="margin-top:10px;">
-              <div style="font-size: 0.65rem; color: var(--ink-soft);">End Statement</div>
-              <input type="date" id="close-statement-date" style="font-size: 0.7rem;" />
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-widget="monthly-spend">
-          <div class="card-label">This month's spending</div>
-          <div class="card-value figure" id="monthly-spend-value">$0.00</div>
-          <!-- Both pieces share one line (flex, space-between) so this
-               can't add a new row or grow the card — same font-size
-               as before, just split into two pieces on the same line. -->
-          <p class="field-hint mt-4" id="monthly-spend-sub" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>vs. last month</span>
-            <span id="last-month-spend-value" style="color: var(--negative);">$0.00</span>
-          </p>
-        </div>
-
-        <div class="card" data-widget="top-category" style="position:relative;">
-          <div class="flex-between" style="align-items:flex-start;">
-            <div class="card-label">Top category</div>
-            <!-- Small filter icon/button — doesn't grow the header
-                 row. The panel it opens is positioned absolutely, so
-                 it overlays on top of other content rather than
-                 pushing anything down or resizing the card. -->
-            <div style="display:flex; align-items:center; gap:4px;">
-				<span style="font-size:0.75rem; color: var(--ink-soft); font-weight: 600;">Exclude:</span>
-				<button type="button" id="top-category-filter-btn" title="Choose which categories to include" style="background:none; border:none; cursor:pointer; padding:0; font-size:1rem; line-height:1; color: var(--ink-soft);">
-					⚙
-				</button>
-			</div>
-          </div>
-          <div class="card-value" id="top-category-value">—</div>
-          <p class="field-hint mt-4" id="top-category-sub" style="display:flex; justify-content:space-between; align-items:center;">
-            <span id="top-category-name">—</span>
-            <span>this month</span>
-          </p>
-
-          <!-- Filter panel — hidden by default, absolutely positioned
-               so opening it never changes the card's size. -->
-          <div id="top-category-filter-panel" style="display:none; flex-direction: row; flex-wrap: wrap; gap: var(--space-2); width: 280px; position:absolute; top:36px; right:var(--space-5); background:white; border:1px solid var(--ink-soft); border-radius: var(--radius); padding: var(--space-3); z-index: 10;">
-            <label style="display:flex; align-items:center; justify-content:flex-start; gap: var(--space-2); width:100%; border-bottom:1px solid var(--line); padding-bottom: var(--space-2); margin-bottom: var(--space-2);">
-              <input type="checkbox" id="top-category-filter-all" value="all" checked style="margin:0; width:auto; padding:0; flex-shrink:0;" />
-              <span style="white-space:nowrap;">All categories</span>
-            </label>
-            <div id="top-category-filter-options" style="display:flex; flex-wrap:wrap; gap: var(--space-2);">
-              <!-- populateTopCategoryFilterOptions() fills this in -->
-            </div>
-          </div>
-        </div>
-
-      </section>
+      <section class="widget-grid" id="widget-container"></section>
 
       <!-- CATEGORY LIMITS: a wider card showing progress toward each
            category's budget limit. Structured as a list so JS can
@@ -180,6 +105,6 @@
 <footer style="text-align: center; padding: 10px; color: #888;">
   Made by Scott Noble - Version B
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="js/dashboard.js"></script>
+<script src="js/widgets.js"></script>
 </html>

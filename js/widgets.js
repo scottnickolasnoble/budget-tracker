@@ -87,7 +87,7 @@ const widgetCatalog = {
 		  const excludedIds = config.excludedCategoryIds ?? [];
 		  const currDate = getDate("current");
 		  const topCategoryMonth = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate) && transaction.amount < 0 && transaction.category_id !== excludedIds;
+			  return transaction.date.startsWith(currDate) && transaction.amount < 0 && !excludedIds.includes(transaction.category_id);
 		  });
 		  const categoriesSorted = topCategoryMonth.reduce(function(sum ,transaction){
 			 if(!sum[transaction.category_id]){
@@ -119,7 +119,102 @@ const widgetCatalog = {
 		  <p style="font-size:24px; font-weight:500;">$${formatted}</p>
 		  `;
 	  }	
+  }, 
+  incomeVsExpenses: {
+	  label: 'incomeVsExpenses',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const currMonthTransactions = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate);
+		  });
+		  const incomeVsExpenses = currMonthTransactions.reduce(function(sum, current){
+			  if(current.amount < 0){
+				  sum.expense += Math.abs(current.amount);
+			  } else {
+				  sum.income += current.amount;
+			  }
+			  return sum;
+		  }, {income: 0, expense: 0});
+		  return incomeVsExpenses;
+	  },
+	  render: function(data){
+		  return `<p style="font-size:13px; color:var(--text-secondary);">Income VS Expenses</p>
+		  <p style="font-size:24px; font-weight:500;">Income: $${data.income.toFixed(2)}</p>
+		  <p style="font-size:24px; font-weight:500;">Expenses: $${data.expense.toFixed(2)}</p>
+		  `;
+	  }
+  },
+  paymentSplit: {
+	  label: 'paymentSplit',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const transactionsFiltered = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate) && transaction.amount < 0;
+		  });
+		  const total = transactionsFiltered.reduce(function(sum,current){
+			  sum[current.paymentmethod] += Math.abs(current.amount);
+			  return sum;
+		  },{credit:0, cash:0});
+		  
+		  return total;
+	  },
+	  render: function(data){
+		  const creditPercent = (data.credit / (data.credit + data.cash)) * 100
+		  const cashPercent = (data.cash / (data.credit + data.cash)) * 100
+		  return `<p style="font-size:13px; color:var(--text-secondary);">Payment Split</p>
+		  <p style="font-size:24px; font-weight:500;">Credit: ${(creditPercent).toFixed(2)}%</p>
+		  <p style="font-size:24px; font-weight:500;">Cash: ${(cashPercent).toFixed(2)}%</p>
+		  `;
+	  }
+  },
+  biggestTransaction: {
+	  label: 'biggestTransaction',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const filteredTransactions = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate) && transaction.amount < 0;
+		  });
+		  const biggestTransaction = filteredTransactions.reduce(function(sum,current){
+			 return Math.abs(sum.amount) > Math.abs(current.amount) ? sum : current; 
+		  });
+		  return {
+			  description: biggestTransaction.description,
+			  amount: biggestTransaction.amount
+		  }
+	  },
+	  render: function(data){
+		  return `<p style="font-size:13px; color:var(--text-secondary);">Biggest Transaction</p>
+		  <p style="font-size:24px; font-weight:500;">${data.description}</p>
+		  <p style="font-size:24px; font-weight:500;">Amount: $${Math.abs(data.amount).toFixed(2)}</p>
+		  `;
+	  }
+  },
+  avgTransaction: {
+	  label: 'avgTransaction',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const filteredTransactions = transactions.filter(function(transaction){
+			 return transaction.date.startsWith(currDate) && transaction.amount < 0; 
+		  });
+		  const total = filteredTransactions.reduce(function(sum,current){
+			  sum += Math.abs(current.amount);
+			  return sum;
+		  },0);
+		 const avgTransaction = filteredTransactions.length === 0 ? 0 : total / filteredTransactions.length;
+		 
+		 return { avgTransaction };
+	  },
+	  render: function(data){
+		  return `<p style="font-size:13px; color:var(--text-secondary);">Average Transaction</p>
+		  <p style="font-size:24px; font-weight:500;">$${data.avgTransaction.toFixed(2)}</p>
+		  `;
+	  }
   }
+  
   
   // more widget types go here
 };
@@ -137,6 +232,6 @@ function renderAllWidgets(userWidgets){
 			
 			container.appendChild(widgetElement);
 		}
-	} 
+	}
 }
 
