@@ -219,17 +219,19 @@ const widgetCatalog = {
   // more widget types go here
 };
 
-function renderAllWidgets(userWidgets){
+function renderAllWidgets(userWidgets, isEditMode){
 	const container = document.getElementById('widgets-container');
 	container.innerHTML = '';
 	for(const widget of userWidgets){
 		if(widgetCatalog[widget.type]){
-			const data = widgetCatalog[widget.type].calculate(transactions, categories, {});
+			const data = widgetCatalog[widget.type].calculate(transactions, categories, widget.config);
 			const html = widgetCatalog[widget.type].render(data);
 			const widgetElement = document.createElement('div');
-			widgetElement.className = 'card widget-card';
+			widgetElement.className = 'card widget-card' + (isEditMode ? ' jiggle-card' : '');
 			widgetElement.innerHTML = html;
-			
+			if (isEditMode){
+				widgetElement.innerHTML += `<button class="widget-remove-btn" data-widget-id="${widget.id}">x</button>`;
+			}
 			container.appendChild(widgetElement);
 		}
 	}

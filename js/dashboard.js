@@ -1,6 +1,22 @@
 let categories = [];
 let transactions = [];
 let widgets = [];
+let isEditMode = false;
+
+document.getElementById('edit-layout-btn').addEventListener('click', function(event){
+	isEditMode = !isEditMode;
+	this.textContent = isEditMode ? 'Done editing' : 'Edit widgets';
+	renderAllWidgets(widgets, isEditMode);
+});
+
+document.getElementById('widgets-container').addEventListener('click', async function(event){
+	if (event.target.classList.contains('widget-remove-btn')){
+		const widgetId = event.target.dataset.widgetId;
+		await fetch(`/api/widgets/${widgetId}`, {method: 'DELETE'});
+		await loadWidgets();
+		renderAllWidgets(widgets, isEditMode);
+	}
+});
 
 async function loadTransactions(){
 	const response = await fetch('/api/transactions');
@@ -42,7 +58,7 @@ async function init(){
 	await loadWidgets();
 	
 	
-	renderAllWidgets(widgets);
+	renderAllWidgets(widgets, isEditMode);
 	
 }
 

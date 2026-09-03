@@ -325,7 +325,30 @@ a:hover { text-decoration-color: var(--accent); }
 .field.has-error .field-error {
   display: block;
 }
- 
+@keyframes jiggle {
+  0%   { transform: rotate(-1deg); }
+  25%  { transform: rotate(1deg); }
+  50%  { transform: rotate(-1deg); }
+  75%  { transform: rotate(1deg); }
+  100% { transform: rotate(-1deg); }
+}
+@keyframes jiggle-fast {
+  0%   { transform: rotate(-2.5deg) scale(1.02); }
+  25%  { transform: rotate(2.5deg) scale(1.02); }
+  50%  { transform: rotate(-2.5deg) scale(1.02); }
+  75%  { transform: rotate(2.5deg) scale(1.02); }
+  100% { transform: rotate(-2.5deg) scale(1.02); }
+}
+.jiggle-card {
+  animation: jiggle 0.28s infinite ease-in-out;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: box-shadow 0.15s;
+}
+.jiggle-card:hover {
+  animation: jiggle-fast 0.16s infinite ease-in-out;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+}
+
 /* Category tag — small pill used wherever a category is shown */
 .tag {
   display: inline-flex;
