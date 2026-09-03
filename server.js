@@ -47,6 +47,9 @@ app.use('/api/statements', statementsRouter);
 const authRouter = require('./routes/auth');
 app.use('/api/auth', authRouter);
 
+const widgetRouter = require('./routes/widgets');
+app.use('/api/widgets', widgetRouter);
+
 app.listen(3000, function() {
 	console.log('Server running on http://localhost:3000');
 });
