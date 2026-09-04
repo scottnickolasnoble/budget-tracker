@@ -118,7 +118,15 @@ const widgetCatalog = {
 		  <span style="display:inline-block; background:${data.color}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; margin:4px 0;">${data.name}</span>
 		  <p style="font-size:24px; font-weight:500;">$${formatted}</p>
 		  `;
-	  }	
+	  },
+	  renderConfig: function(currentConfig, categories){
+		  const excludedIds = currentConfig.excludedCategoryIds ?? [];
+		  const checkboxes = categories.map(function(category){
+			  const isChecked = !excludedIds.includes(category.id) ? 'checked' : ''
+			  return `<label><input type="checkbox" data-category-id="${category.id}" ${isChecked}> ${category.name}</label>`;
+		  });
+		  return `<label>Exclude categories</label>` + checkboxes.join('');
+	  }
   }, 
   incomeVsExpenses: {
 	  label: 'incomeVsExpenses',
@@ -229,6 +237,7 @@ function renderAllWidgets(userWidgets, isEditMode){
 			const widgetElement = document.createElement('div');
 			widgetElement.className = 'card widget-card' + (isEditMode ? ' jiggle-card' : '');
 			widgetElement.innerHTML = html;
+			widgetElement.dataset.widgetId = widget.id;
 			if (isEditMode){
 				widgetElement.innerHTML += `<button class="widget-remove-btn" data-widget-id="${widget.id}">x</button>`;
 			}
@@ -237,3 +246,15 @@ function renderAllWidgets(userWidgets, isEditMode){
 	}
 }
 
+function updateConfigSection() {
+  const selectedType = document.getElementById('widget-config-type').value;
+  const configContainer = document.getElementById('widget-config-typespecific');
+  const catalogEntry = widgetCatalog[selectedType];
+
+  if (catalogEntry.renderConfig) {
+    const currentConfig = (currentlyEditingWidget.type === selectedType) ? currentlyEditingWidget.config : {};
+    configContainer.innerHTML = catalogEntry.renderConfig(currentConfig, categories);
+  } else {
+    configContainer.innerHTML = '';
+  }
+}

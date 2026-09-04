@@ -87,7 +87,7 @@
           No categories with limits yet — set one up on the Categories page.
         </p>
       </section>
-
+		
       <!-- CHART: placeholder container. Your JS will draw into this
            (e.g. with Chart.js or a canvas you build yourself) once
            we get to charts — for now it's just a sized, styled box. -->
@@ -97,7 +97,28 @@
           <p class="text-soft" style="margin:0;">Chart renders here</p>
         </div>
       </section>
+		<div id="widget-config-modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h2>Configure widget</h2>
 
+    <label>Widget type</label>
+    <select id="widget-config-type"></select>
+
+    <label>Size</label>
+    <div id="widget-config-size-buttons">
+      <button type="button" data-span="1">Small</button>
+      <button type="button" data-span="2">Medium</button>
+      <button type="button" data-span="4">Large</button>
+    </div>
+
+    <div id="widget-config-typespecific"></div>
+
+    <div class="modal-actions">
+      <button type="button" id="widget-config-cancel">Cancel</button>
+      <button type="button" id="widget-config-save">Save</button>
+		</div>
+	</div>
+	</div>
     </main>
   </div>
 

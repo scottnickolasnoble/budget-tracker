@@ -2,6 +2,7 @@ let categories = [];
 let transactions = [];
 let widgets = [];
 let isEditMode = false;
+let currentlyEditingWidget = null;
 
 document.getElementById('edit-layout-btn').addEventListener('click', function(event){
 	isEditMode = !isEditMode;
@@ -10,13 +11,49 @@ document.getElementById('edit-layout-btn').addEventListener('click', function(ev
 });
 
 document.getElementById('widgets-container').addEventListener('click', async function(event){
+	
 	if (event.target.classList.contains('widget-remove-btn')){
 		const widgetId = event.target.dataset.widgetId;
 		await fetch(`/api/widgets/${widgetId}`, {method: 'DELETE'});
 		await loadWidgets();
 		renderAllWidgets(widgets, isEditMode);
+		return;
+	}
+	const clickedCard = event.target.closest('.widget-card');
+	if(clickedCard && isEditMode){
+		const widgetId = clickedCard.dataset.widgetId;
+		currentlyEditingWidget = widgets.find(function(widget){
+			return widget.id === Number(widgetId);
+		});
+		document.getElementById('widget-config-type').value = currentlyEditingWidget.type;
+		document.getElementById('widget-config-modal').style.display = 'flex';
 	}
 });
+ document.getElementById('widget-config-save').addEventListener('click', async function(){
+	 const newType = document.getElementById('widget-config-type').value;
+	 
+	 await fetch(`/api/widgets/${currentlyEditingWidgit.id}`, {
+		 method: 'PATCH',
+		 headers: {'Content-Type': 'application/json'},
+		 body: JSON.stringify({
+			 type: newType,
+			 position: currentlyEditingWidget.position,
+			 span: currentlyEditingWidget.span,
+			 config: {}
+		 })
+	 });
+	 document.getElementById('widget-config-modal').style.display = 'none';
+	 await loadWidgets();
+	 renderAllWidgets(widgets, isEditMode);
+ });
+function populateWidgetTypeOptions(){
+	const select = document.getElementById(''widget-config-type');
+	select.innerHTML = Object.keys(widgetCatalog).map(function(type){
+		return `<option value="${type}">${widgetCatalog[type].label}</option> `
+	}).join('');
+}
+
+
 
 async function loadTransactions(){
 	const response = await fetch('/api/transactions');
@@ -59,7 +96,7 @@ async function init(){
 	
 	
 	renderAllWidgets(widgets, isEditMode);
-	
+	populateWidgetTypeOptions()
 }
 
 
