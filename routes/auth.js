@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const pool = require('../db/pool');
 const validateRegister = require('../middleware/validateRegister');
-const loginLimiter = require('../middleware/login');
+const loginLimiter = require('../middleware/loginLimiter');
 
 router.post('/register', validateRegister, async function(request, response){
 	const {email, password} = request.body;
