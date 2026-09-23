@@ -26,33 +26,74 @@ document.getElementById('widgets-container').addEventListener('click', async fun
 			return widget.id === Number(widgetId);
 		});
 		document.getElementById('widget-config-type').value = currentlyEditingWidget.type;
+		updateConfigSection();
 		document.getElementById('widget-config-modal').style.display = 'flex';
 	}
 });
  document.getElementById('widget-config-save').addEventListener('click', async function(){
 	 const newType = document.getElementById('widget-config-type').value;
 	 
-	 await fetch(`/api/widgets/${currentlyEditingWidgit.id}`, {
+	 await fetch(`/api/widgets/${currentlyEditingWidget.id}`, {
 		 method: 'PATCH',
 		 headers: {'Content-Type': 'application/json'},
 		 body: JSON.stringify({
 			 type: newType,
 			 position: currentlyEditingWidget.position,
 			 span: currentlyEditingWidget.span,
-			 config: {}
+			 config: collectConfig(newType)
 		 })
 	 });
 	 document.getElementById('widget-config-modal').style.display = 'none';
 	 await loadWidgets();
 	 renderAllWidgets(widgets, isEditMode);
  });
+ 
+ document.getElementById('widget-config-cancel').addEventListener('click', async function(){
+	 document.getElementById('widget-config-modal').style.display = 'none';
+	 await loadWidgets();
+	 renderAllWidgets(widgets, isEditMode);
+ });
+ document.getElementById('widget-config-type').addEventListener('change', updateConfigSection);
 function populateWidgetTypeOptions(){
-	const select = document.getElementById(''widget-config-type');
+	const select = document.getElementById('widget-config-type');
 	select.innerHTML = Object.keys(widgetCatalog).map(function(type){
 		return `<option value="${type}">${widgetCatalog[type].label}</option> `
 	}).join('');
 }
 
+function updateConfigSection() {
+  const selectedType = document.getElementById('widget-config-type').value;
+  const configContainer = document.getElementById('widget-config-typespecific');
+  const catalogEntry = widgetCatalog[selectedType];
+
+  if (catalogEntry.renderConfig) {
+    const currentConfig = (currentlyEditingWidget.type === selectedType) ? currentlyEditingWidget.config : {};
+    configContainer.innerHTML = catalogEntry.renderConfig(currentConfig, categories);
+  } else {
+    configContainer.innerHTML = '';
+  }
+}
+
+function collectConfig(selectedType){
+	const catalogEntry = widgetCatalog[selectedType];
+	if(!catalogEntry.renderConfig){
+		return {};
+	}
+	
+	if (selectedType === 'topCategory'){
+		const checkboxes = document.querySelectorAll('#widget-config-typespecific input[type="checkbox"]');
+		const excludedCategoryIds = [];
+		
+		checkboxes.forEach(function(checkbox){
+			if(!checkbox.checked){
+				excludedCategoryIds.push(Number(checkbox.dataset.categoryId));
+			}
+		});
+		return { excludedCategoryIds };
+	}
+	
+	return {};
+}
 
 
 async function loadTransactions(){
