@@ -159,7 +159,7 @@ const widgetCatalog = {
 			  if(current.amount < 0){
 				  sum.expense += Math.abs(current.amount);
 			  } else {
-				  sum.income += current.amount;
+				  sum.income += Number(current.amount);
 			  }
 			  return sum;
 		  }, {income: 0, expense: 0});
