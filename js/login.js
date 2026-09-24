@@ -16,7 +16,7 @@ registerCancelBtn.addEventListener('click', function(event){
 })
 
 /////SUBMIT PRESSED////////////
-form.addEventListener('submit', function(event) {
+form.addEventListener('submit', async function(event) {
 	//////////PREVENTS PAGE FROM CONSTANTLY RELOADING
 	event.preventDefault();
 	
