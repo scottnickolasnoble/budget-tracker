@@ -28,16 +28,16 @@ const widgetCatalog = {
       }, 0);
       return { total };
     },
-    render: function(data) {
+render: function(data) {
     const formatted = data.total < 0
         ? `-$${Math.abs(data.total).toFixed(2)}`
         : `$${data.total.toFixed(2)}`;
     return `
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-            <i class="ti ti-wallet" style="font-size:16px; color:var(--text-secondary);" aria-hidden="true"></i>
-            <p style="font-size:13px; color:var(--text-secondary); margin:0;">Cash balance</p>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            <i class="ti ti-wallet" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+            <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Cash balance</p>
         </div>
-        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">${formatted}</p>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">${formatted}</p>
     `;
 }
   },
@@ -56,11 +56,14 @@ const widgetCatalog = {
 		},0);
 		return { total };
 	  },
-	  render: function(data){
+	render: function(data){
     const formatted = Math.abs(data.total).toFixed(2);
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Monthly spending</p>
-    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i class="ti ti-calendar" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Monthly spending</p>
+    </div>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">$${formatted}</p>
     `;
 }
 	  
@@ -81,12 +84,15 @@ const widgetCatalog = {
 		  },0);
 		  return { total };
 	  },
-	  render: function(data){
+render: function(data){
     const formatted = Math.abs(data.total).toFixed(2);
     return `
-    <div style="background:var(--bg-danger); margin:-1rem; padding:1rem; border-radius:12px;">
-        <p style="font-size:13px; color:var(--text-danger); margin:0 0 8px;">Credit accrued</p>
-        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--text-danger); margin:0;">$${formatted}</p>
+    <div style="background:var(--negative-bg); margin:-1rem; padding:1rem; border-radius:var(--radius);">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+            <i class="ti ti-credit-card" style="font-size:15px; color:var(--negative);" aria-hidden="true"></i>
+            <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--negative); margin:0;">Credit accrued</p>
+        </div>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--negative); margin:0;">$${formatted}</p>
     </div>
     `;
 }
@@ -133,12 +139,15 @@ const widgetCatalog = {
 			total: topCategory[1]
 		};
 	  },
-	  render: function(data){
+render: function(data){
     const formatted = Math.abs(data.total).toFixed(2);
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Top category</p>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i class="ti ti-tag" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Top category</p>
+    </div>
     <span style="display:inline-block; background:${data.color}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; margin:0 0 8px;">${data.name}</span>
-    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">$${formatted}</p>
     `;
 },
 	  renderConfig: function(currentConfig, categories){
@@ -170,17 +179,20 @@ const widgetCatalog = {
 		  }, {income: 0, expense: 0});
 		  return incomeVsExpenses;
 	  },
-	  render: function(data){
+render: function(data){
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 10px;">Income vs expenses</p>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px;">
+        <i class="ti ti-arrows-exchange" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Income vs expenses</p>
+    </div>
     <div style="display:flex; gap:24px;">
         <div>
-            <p style="font-size:11px; color:var(--text-muted); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Income</p>
-            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--text-success); margin:0;">$${data.income.toFixed(2)}</p>
+            <p style="font-size:10px; color:var(--ink-soft); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Income</p>
+            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--positive); margin:0;">$${data.income.toFixed(2)}</p>
         </div>
         <div>
-            <p style="font-size:11px; color:var(--text-muted); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Expenses</p>
-            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--text-danger); margin:0;">$${data.expense.toFixed(2)}</p>
+            <p style="font-size:10px; color:var(--ink-soft); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Expenses</p>
+            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--negative); margin:0;">$${data.expense.toFixed(2)}</p>
         </div>
     </div>
     `;
@@ -203,16 +215,19 @@ const widgetCatalog = {
 		  
 		  return total;
 	  },
-	  render: function(data){
+render: function(data){
     const creditPercent = (data.credit / (data.credit + data.cash)) * 100;
     const cashPercent = (data.cash / (data.credit + data.cash)) * 100;
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 10px;">Payment split</p>
-    <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:8px;">
-        <div style="width:${creditPercent}%; background:var(--fill-accent);"></div>
-        <div style="width:${cashPercent}%; background:var(--fill-warning);"></div>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px;">
+        <i class="ti ti-chart-pie" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Payment split</p>
     </div>
-    <div style="display:flex; gap:16px; font-size:12px; color:var(--text-secondary);">
+    <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:8px; background:var(--line);">
+        <div style="width:${creditPercent}%; background:var(--accent);"></div>
+        <div style="width:${cashPercent}%; background:var(--ink-soft);"></div>
+    </div>
+    <div style="display:flex; gap:16px; font-size:12px; color:var(--ink-soft);">
         <span>Credit ${creditPercent.toFixed(2)}%</span>
         <span>Cash ${cashPercent.toFixed(2)}%</span>
     </div>
@@ -237,11 +252,14 @@ const widgetCatalog = {
 			  amount: biggestTransaction.amount
 		  }
 	  },
-	  render: function(data){
+render: function(data){
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Biggest transaction</p>
-    <p style="font-size:14px; font-weight:500; margin:0 0 2px;">${data.description}</p>
-    <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; margin:0;">$${Math.abs(data.amount).toFixed(2)}</p>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i class="ti ti-star" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Biggest transaction</p>
+    </div>
+    <p style="font-size:14px; font-weight:500; color:var(--ink); margin:0 0 2px;">${data.description}</p>
+    <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--ink); margin:0;">$${Math.abs(data.amount).toFixed(2)}</p>
     `;
 }
   },
@@ -263,11 +281,14 @@ const widgetCatalog = {
 		 
 		 return { avgTransaction };
 	  },
-	  render: function(data){
+render: function(data){
     const formatted = data.avgTransaction.toFixed(2);
     return `
-    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Average transaction</p>
-    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i class="ti ti-receipt" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Average transaction</p>
+    </div>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">$${formatted}</p>
     `;
 }
   }
