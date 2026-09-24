@@ -320,9 +320,9 @@ function applyFilters(){
 	const newTransactions = transactions.filter(function(transaction){
 		
 		const dateMatches = date === "" || transaction.date.startsWith(date);
-		const categoryMatches = allCheckbox.checked || selectedCategories.includes(transaction.category);
-		const typeMatches = type === "all" || (type === "income" ? transaction.amount > 0 : transaction.amount < 0);
-		const paymentMatches = payment === "all" || transaction.paymentMethod === payment;
+		const categoryMatches = allCheckbox.checked || selectedCategories.includes(transaction.category_id);
+		const typeMatches = type === "all" || (type === "income" ? Number(transaction.amount) > 0 : Number(transaction.amount) < 0);
+		const paymentMatches = payment === "all" || transaction.paymentmethod === payment;
 		const searchMatch = description === "" || transaction.description.toLowerCase().includes(description.toLowerCase());
 		return dateMatches && categoryMatches && typeMatches && searchMatch && paymentMatches;
 	});
