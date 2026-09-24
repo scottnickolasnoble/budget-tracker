@@ -22,7 +22,7 @@ const widgetCatalog = {
         return transaction.paymentmethod === 'cash';
       });
       const total = cashTransactions.reduce(function(sum, transaction) {
-        return sum + transaction.amount;
+        return sum + Number(transaction.amount);
       }, 0);
       return { total };
     },
@@ -42,10 +42,10 @@ const widgetCatalog = {
 	  calculate: function(transactions, categories, config){
 		const currDate = getDate("current");
 		const monthlySpending = transactions.filter(function(transaction){
-			return transaction.date.startsWith(currDate) && transaction.amount < 0;
+			return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0;
 		});
 		const total = monthlySpending.reduce(function(sum, transaction){
-			return sum + transaction.amount;
+			return sum + Number(transaction.amount);
 		},0);
 		return { total };
 	  },
@@ -65,10 +65,10 @@ const widgetCatalog = {
 		  const currDate = getDate("current");
 		  
 		  const creditAccrued = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate) && transaction.paymentmethod.toLowerCase() === "credit" && transaction.amount < 0;
+			  return transaction.date.startsWith(currDate) && transaction.paymentmethod.toLowerCase() === "credit" && Number(transaction.amount) < 0;
 		  });
 		  const total = creditAccrued.reduce(function(sum, transaction){
-			  return sum + transaction.amount;
+			  return sum + Number(transaction.amount);
 		  },0);
 		  return { total };
 	  },
@@ -87,13 +87,13 @@ const widgetCatalog = {
 		  const excludedIds = config.excludedCategoryIds ?? [];
 		  const currDate = getDate("current");
 		  const topCategoryMonth = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate) && transaction.amount < 0 && !excludedIds.includes(transaction.category_id);
+			  return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0 && !excludedIds.includes(transaction.category_id);
 		  });
 		  const categoriesSorted = topCategoryMonth.reduce(function(sum ,transaction){
 			 if(!sum[transaction.category_id]){
 				 sum[transaction.category_id] = 0;
 			 }
-			 sum[transaction.category_id] += transaction.amount;
+			 sum[transaction.category_id] += Number(transaction.amount);
 			 return sum;
 		  },{});
 		  
@@ -168,7 +168,7 @@ const widgetCatalog = {
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const transactionsFiltered = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate) && transaction.amount < 0;
+			  return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0;
 		  });
 		  const total = transactionsFiltered.reduce(function(sum,current){
 			  sum[current.paymentmethod] += Math.abs(current.amount);
@@ -192,7 +192,7 @@ const widgetCatalog = {
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const filteredTransactions = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate) && transaction.amount < 0;
+			  return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0;
 		  });
 		  const biggestTransaction = filteredTransactions.reduce(function(sum,current){
 			 return Math.abs(sum.amount) > Math.abs(current.amount) ? sum : current; 
@@ -215,7 +215,7 @@ const widgetCatalog = {
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const filteredTransactions = transactions.filter(function(transaction){
-			 return transaction.date.startsWith(currDate) && transaction.amount < 0; 
+			 return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0; 
 		  });
 		  const total = filteredTransactions.reduce(function(sum,current){
 			  sum += Math.abs(current.amount);
