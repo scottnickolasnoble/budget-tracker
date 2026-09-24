@@ -182,7 +182,7 @@ function populateCategoryOptions(categories){
 function populateCategoryFilterOptions(categories){
 	const optionsHTML = categories.map(function(category){
 		return `<label style="display:flex; align-items:center; gap: var(--space-2);">
-			<input type="checkbox" value="${category.name}" checked style="width:auto; padding:0; flex-shrink:0;" />
+			<input type="checkbox" value="${category.id}" checked style="width:auto; padding:0; flex-shrink:0;" />
 			<span>${category.name}</span>
 		</label>`;
 	});
@@ -309,7 +309,7 @@ function applyFilters(){
 	
 	const checkedBoxes = Array.from(document.querySelectorAll('#category-filter-options input[type="checkbox"]:checked'));
 	const selectedCategories = checkedBoxes.map(function(checkbox){
-		return checkbox.value;
+		return Number(checkbox.value);
 	});
 	if(selectedCategories.length === 0){
 		filterCategoryLabel.textContent = "All categories";
