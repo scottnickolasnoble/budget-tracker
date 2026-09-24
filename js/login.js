@@ -15,6 +15,51 @@ registerCancelBtn.addEventListener('click', function(event){
 	registerModal.style.display = 'none';
 });
 
+registerForm.addEventListener('submit', async function(event){
+	event.preventDefault();
+	
+	const email = document.getElementById('register-email').value;
+	const password = document.getElementById('register-password').value;
+	const emailField = document.getElementById('register-email-field');
+	const passwordField = document.getElementById('register-message');
+	const registerMessage = document.getElementById('register-message');
+	
+	emailField.classList.remove('has-error');
+	passwordField.classList.remove('has-error');
+	registerMessage.TextContent = '';
+	
+	let isValid = true;
+	
+	if (email === ''){
+		emailField.classList.add('has-error');
+		isValid = false;
+	}
+	
+	if (password.length < 8){
+		passwordField.classList.add('has-error');
+		isValid = false;
+	}
+	
+	if (!isValid){
+		return;
+	}
+	
+	const response = await fetch('/api/auth/register', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({email,password})
+	});
+	
+	if (response.ok){
+		registerModal.style.display = 'none';
+		registerMessage.TextContent = 'Account created - login below.';
+	} else {
+		const result = await response.json();
+		registerMessage.TextContent = result.error;
+	}
+	
+	
+})
 /////SUBMIT PRESSED////////////
 form.addEventListener('submit', async function(event) {
 	//////////PREVENTS PAGE FROM CONSTANTLY RELOADING
