@@ -3,6 +3,7 @@ let transactions = [];
 let widgets = [];
 let isEditMode = false;
 let currentlyEditingWidget = null;
+let categoryChart = null;
 
 document.getElementById('edit-layout-btn').addEventListener('click', function(event){
 	isEditMode = !isEditMode;
@@ -161,6 +162,61 @@ function renderCategoryLimits() {
     `;
   }).join('');
 } 
+
+function renderCategoryChart() {
+  const currDate = getDate('current');
+
+  const spendingByCategory = transactions
+    .filter(function(transaction) {
+      return transaction.date.startsWith(currDate) && transaction.amount < 0;
+    })
+    .reduce(function(sum, transaction) {
+      if (sum[transaction.category_id] === undefined) {
+        sum[transaction.category_id] = 0;
+      }
+      sum[transaction.category_id] += Math.abs(Number(transaction.amount));
+      return sum;
+    }, {});
+
+  const labels = [];
+  const values = [];
+  const colors = [];
+
+  Object.entries(spendingByCategory).forEach(function(entry) {
+    const category = categories.find(function(c) { return c.id === Number(entry[0]); });
+    labels.push(category?.name ?? 'Uncategorized');
+    values.push(entry[1]);
+    colors.push(category?.color ?? '#B4B2A9');
+  });
+
+  const ctx = document.getElementById('category-chart');
+
+  if (categoryChart) {
+    categoryChart.destroy();
+  }
+
+  categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { size: 12 }, color: getComputedStyle(document.body).getPropertyValue('--ink') }
+        }
+      }
+    }
+  });
+}
+
 function updateConfigSection() {
   const selectedType = document.getElementById('widget-config-type').value;
   const configContainer = document.getElementById('widget-config-typespecific');
@@ -240,6 +296,7 @@ async function init(){
 	populateWidgetTypeOptions()
 	populateWidgetPicker();
 	renderCategoryLimits();
+	renderCategoryChart();
 }
 
 
