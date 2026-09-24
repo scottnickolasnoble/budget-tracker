@@ -114,7 +114,53 @@ function populateWidgetPicker() {
     grid.appendChild(card);
   });
 }
+function renderCategoryLimits() {
+  const currDate = getDate('current');
+  const limitedCategories = categories.filter(function(category) {
+    return category.limit !== null && category.limit !== '';
+  });
 
+  const list = document.getElementById('category-limits-list');
+  const emptyMessage = document.getElementById('category-limits-empty');
+
+  if (limitedCategories.length === 0) {
+    list.innerHTML = '';
+    emptyMessage.style.display = 'block';
+    return;
+  }
+
+  emptyMessage.style.display = 'none';
+
+  list.innerHTML = limitedCategories.map(function(category) {
+    const spentTotal = transactions
+      .filter(function(transaction) {
+        return transaction.category_id === category.id &&
+               transaction.date.startsWith(currDate) &&
+               transaction.amount < 0;
+      })
+      .reduce(function(sum, transaction) {
+        return sum + Math.abs(Number(transaction.amount));
+      }, 0);
+
+    const limitValue = Number(category.limit);
+    const percentage = Math.min((spentTotal / limitValue) * 100, 100);
+
+    return `
+      <div class="limit-row">
+        <div class="flex-between mb-2">
+          <span class="tag" style="background:${category.color};">${category.name}</span>
+          <span class="text-soft" style="font-size:0.875rem;">
+            <span class="figure">$${spentTotal.toFixed(2)}</span> of
+            <span class="figure">$${limitValue.toFixed(2)}</span>
+          </span>
+        </div>
+        <div class="limit-bar">
+          <div class="limit-bar-fill" style="width: ${percentage}%;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+} 
 function updateConfigSection() {
   const selectedType = document.getElementById('widget-config-type').value;
   const configContainer = document.getElementById('widget-config-typespecific');
@@ -193,6 +239,7 @@ async function init(){
 	renderAllWidgets(widgets, isEditMode);
 	populateWidgetTypeOptions()
 	populateWidgetPicker();
+	renderCategoryLimits();
 }
 
 
