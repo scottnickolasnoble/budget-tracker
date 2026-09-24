@@ -97,9 +97,18 @@ const widgetCatalog = {
 			 return sum;
 		  },{});
 		  
+		   if(Object.entries(categoriesSorted).length === 0){
+			return {
+				name: 'No Data yet',
+				color: 'var(--text-secondary)',
+				total: 0
+			};
+		   } 
+		   
 		   const topCategory = Object.entries(categoriesSorted).reduce(function(sum, current){
 			return Math.abs(current[1]) > Math.abs(sum[1]) ? current : sum;
 		   });
+		   
 		
 		const matchingCategory = categories.find(function(category){
 			return category.id === Number(topCategory[0]);
