@@ -16,6 +16,8 @@ function getDate(condition){
 const widgetCatalog = {
   cashBalance: {
     label: 'Cash balance',
+	section: 'snapshot',
+	description: "Your total across cash transactions",
     defaultSpan: 1,
     calculate: function(transactions, categories, config) {
       const cashTransactions = transactions.filter(function(transaction) {
@@ -38,6 +40,8 @@ const widgetCatalog = {
   },
   monthlySpending: {
 	  label: 'Monthly Spending',
+	  section: 'snapshot',
+	  description: 'Your total monthly spending across all transactions',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		const currDate = getDate("current");
@@ -60,6 +64,8 @@ const widgetCatalog = {
   },
   creditAccrued: {
 	  label: 'Credit Accrued',
+	  section: 'snapshot',
+	  description: 'Your total transactions that use credit',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate("current");
@@ -82,6 +88,8 @@ const widgetCatalog = {
   },
   topCategory: {
 	  label: 'Top Category',
+	  section: 'categoryInsights',
+	  description: 'Your top transaction in a specific category',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const excludedIds = config.excludedCategoryIds ?? [];
@@ -139,6 +147,8 @@ const widgetCatalog = {
   }, 
   incomeVsExpenses: {
 	  label: 'incomeVsExpenses',
+	  section: 'trends',
+	  description: 'Income vs expenses trends',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
@@ -164,6 +174,8 @@ const widgetCatalog = {
   },
   paymentSplit: {
 	  label: 'paymentSplit',
+	  section: 'trends',
+	  description: 'Your cash vs credit transactions',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
@@ -188,6 +200,8 @@ const widgetCatalog = {
   },
   biggestTransaction: {
 	  label: 'biggestTransaction',
+	  section: 'trends',
+	  description: 'Largest transaction this month',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
@@ -211,6 +225,8 @@ const widgetCatalog = {
   },
   avgTransaction: {
 	  label: 'avgTransaction',
+	  section: 'snapshot',
+	  description: 'Your average transaction cost across all transactions',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
@@ -267,3 +283,4 @@ function updateConfigSection() {
     configContainer.innerHTML = '';
   }
 }
+

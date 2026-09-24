@@ -60,6 +60,26 @@ function populateWidgetTypeOptions(){
 		return `<option value="${type}">${widgetCatalog[type].label}</option> `
 	}).join('');
 }
+function populateWidgetPicker() {
+  document.querySelectorAll('.widget-picker-grid').forEach(function(grid) {
+    grid.innerHTML = '';
+  });
+
+  Object.keys(widgetCatalog).forEach(function(type) {
+    const entry = widgetCatalog[type];
+    const grid = document.querySelector('.widget-picker-grid[data-section="' + entry.section + '"]');
+
+    const card = document.createElement('div');
+    card.className = 'card widget-picker-card';
+    card.dataset.widgetType = type;
+    card.innerHTML = `
+      <p style="font-weight:500; margin:0 0 4px;">${entry.label}</p>
+      <p class="text-soft" style="font-size:0.875rem; margin:0;">${entry.description}</p>
+    `;
+
+    grid.appendChild(card);
+  });
+}
 
 function updateConfigSection() {
   const selectedType = document.getElementById('widget-config-type').value;
@@ -138,6 +158,7 @@ async function init(){
 	
 	renderAllWidgets(widgets, isEditMode);
 	populateWidgetTypeOptions()
+	populateWidgetPicker();
 }
 
 
