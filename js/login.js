@@ -1,6 +1,19 @@
 /////FORM ELEMENT/////////
 const form = document.getElementById('login-form');
+const registerModal = document.getElementById('register-modal');
+const openRegisterLink = document.getElementById('open-register-link');
+const registerCancelBtn = document.getElementById('register-cancel');
+const registerForm = document.getElementById('register-form');
 
+
+openRegisterLink.addEventListener('click', function(event){
+	event.preventDefault();
+	registerModal.style.display = 'flex';
+});
+
+registerCancelBtn.addEventListener('click', function(event){
+	registerModal.style.display = 'none';
+})
 
 /////SUBMIT PRESSED////////////
 form.addEventListener('submit', function(event) {
@@ -31,6 +44,16 @@ form.addEventListener('submit', function(event) {
 		return;
 	}
 	
-	window.location.href = "dashboard.html";
-  // this function runs every time the form is submitted
+const response = await fetch('/api/auth/login', {
+	method: 'POST',
+	headers: {'Content-Type' : 'application/json' },
+	body: JSON.stringify({email,password})
+});
+
+	if(response.ok){
+		window.location.href = 'dashboard.html';
+	} else {
+		const result = await response.json();
+		loginMessage.textContent = result.error;
+	}
 });
