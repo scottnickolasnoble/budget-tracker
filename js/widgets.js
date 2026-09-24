@@ -269,6 +269,14 @@ function renderAllWidgets(userWidgets, isEditMode){
 			container.appendChild(widgetElement);
 		}
 	}
+
+	if (isEditMode) {
+		const addCard = document.createElement('div');
+		addCard.id = 'add-widget-card';
+		addCard.className = 'card widget-add-card';
+		addCard.textContent = '+ Add widget';
+		container.appendChild(addCard);
+	}
 }
 
 function updateConfigSection() {

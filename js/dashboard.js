@@ -10,6 +10,34 @@ document.getElementById('edit-layout-btn').addEventListener('click', function(ev
 	renderAllWidgets(widgets, isEditMode);
 });
 
+document.getElementById('add-widget-close').addEventListener('click', function() {
+  document.getElementById('add-widget-modal').style.display = 'none';
+});
+
+document.getElementById('add-widget-modal').addEventListener('click', async function(event) {
+  const clickedPickerCard = event.target.closest('.widget-picker-card');
+  if (!clickedPickerCard) {
+    return;
+  }
+
+  const selectedType = clickedPickerCard.dataset.widgetType;
+
+  await fetch('/api/widgets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: selectedType,
+      position: widgets.length,
+      span: widgetCatalog[selectedType].defaultSpan,
+      config: {}
+    })
+  });
+
+  document.getElementById('add-widget-modal').style.display = 'none';
+  await loadWidgets();
+  renderAllWidgets(widgets, isEditMode);
+});
+
 document.getElementById('widgets-container').addEventListener('click', async function(event){
 	
 	if (event.target.classList.contains('widget-remove-btn')){
@@ -19,6 +47,12 @@ document.getElementById('widgets-container').addEventListener('click', async fun
 		renderAllWidgets(widgets, isEditMode);
 		return;
 	}
+	
+	if (event.target.id === 'add-widget-card') {
+		document.getElementById('add-widget-modal').style.display = 'flex';
+		return;
+	}
+	
 	const clickedCard = event.target.closest('.widget-card');
 	if(clickedCard && isEditMode){
 		const widgetId = clickedCard.dataset.widgetId;
