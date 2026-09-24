@@ -25,9 +25,13 @@ router.post('/', validateCategory, async function(request, response){
 });
 router.delete('/:id', async function(request, response){
 	const { id } = request.params;
-	
+	const user_id = request.session.userId;
 	try{
-	await pool.query('DELETE FROM categories WHERE id = $1', [id]);
+	const result = await pool.query('DELETE FROM categories WHERE id = $1 AND user_id = $2', [id, user_id]);
+	
+	if(result.rowCount === 0){
+		return response.status(404).json({error: 'Category not found'});
+	}
 	response.status(200).json({message: "Deleted"});
 	}
 	catch (error) {
@@ -37,9 +41,14 @@ router.delete('/:id', async function(request, response){
 router.patch('/:id', validateCategoryUpdate, async function(request, response){
 	const { id } = request.params;
 	const { name, color, limit } = request.body;
+	const user_id = request.session.userId;
 	const limitValue = limit === '' ? null : limit;
 	
-	const result = await pool.query('UPDATE categories SET name = $1, color = $2, "limit" = $3 WHERE id = $4 RETURNING *', [name, color, limitValue, id]);
+	const result = await pool.query('UPDATE categories SET name = $1, color = $2, "limit" = $3 WHERE id = $4 AND user_id = $5 RETURNING *', [name, color, limitValue, id, user_id]);
+	
+	if(result.rowCount === 0){
+		return response.status(404).json({error: "Category not Found"});
+	}
 	
 	response.status(200).json(result.rows[0]);
 });

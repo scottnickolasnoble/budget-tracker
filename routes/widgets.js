@@ -21,18 +21,27 @@ router.post('/', async function(request, response){
 
 router.delete('/:id', async function(request, response){
 	const { id } = request.params;
-	const result = await pool.query('DELETE FROM widgets WHERE id = $1', [id]);
+	const user_id = request.session.userId;
+	const result = await pool.query('DELETE FROM widgets WHERE id = $1 AND user_id = $2', [id,user_id]);
+	if(result.rowCount === 0){
+		return response.status(404).json({error: "Widget doesn't exist"});
+	}
+	
 	response.status(200).json({message: 'Deleted'});
 });
 
 router.patch('/:id', async function(request, response){
 	const { id } = request.params;
 	const { type, position, span, config } = request.body;
+	const user_id = request.session.userId;
 	
 	const result = await pool.query(`UPDATE widgets SET type = $1, position = $2, span = $3,
 	config = $4::jsonb
-	WHERE id = $5 RETURNING *`, [type, position, span, config, id]);
+	WHERE id = $5 AND user_id = $6 RETURNING *`, [type, position, span, config, id, user_id]);
 	
+	if(result.rowCount === 0){
+		return response.status(404).json({error: "Widget doesn't exist"});
+	}
 	response.status(200).json(result.rows[0]);
 });
 
