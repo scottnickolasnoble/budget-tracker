@@ -29,14 +29,17 @@ const widgetCatalog = {
       return { total };
     },
     render: function(data) {
-      const formatted = data.total < 0
+    const formatted = data.total < 0
         ? `-$${Math.abs(data.total).toFixed(2)}`
         : `$${data.total.toFixed(2)}`;
-      return `
-        <p style="font-size:13px; color:var(--text-secondary);">Cash balance</p>
-        <p style="font-size:24px; font-weight:500;">${formatted}</p>
-      `;
-    }
+    return `
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+            <i class="ti ti-wallet" style="font-size:16px; color:var(--text-secondary);" aria-hidden="true"></i>
+            <p style="font-size:13px; color:var(--text-secondary); margin:0;">Cash balance</p>
+        </div>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">${formatted}</p>
+    `;
+}
   },
   monthlySpending: {
 	  label: 'Monthly Spending',
@@ -54,12 +57,12 @@ const widgetCatalog = {
 		return { total };
 	  },
 	  render: function(data){
-		  const formatted = Math.abs(data.total).toFixed(2);
-		  return `
-		  <p style="font-size:13px; color:var(--text-secondary);">Monthly Spending</p>
-		  <p style="font-size:24px; font-weight:500;">${formatted}</p>
-		  `;
-	  }
+    const formatted = Math.abs(data.total).toFixed(2);
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Monthly spending</p>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    `;
+}
 	  
   },
   creditAccrued: {
@@ -79,12 +82,14 @@ const widgetCatalog = {
 		  return { total };
 	  },
 	  render: function(data){
-		  const formatted = Math.abs(data.total).toFixed(2);
-		  return `
-		  <p style="font-size:13px; color:var(--text-secondary);">Credit Accrued</p>
-		  <p style="font-size:24px; font-weight:500;">${formatted}</p>
-		  `;
-	  }
+    const formatted = Math.abs(data.total).toFixed(2);
+    return `
+    <div style="background:var(--bg-danger); margin:-1rem; padding:1rem; border-radius:12px;">
+        <p style="font-size:13px; color:var(--text-danger); margin:0 0 8px;">Credit accrued</p>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--text-danger); margin:0;">$${formatted}</p>
+    </div>
+    `;
+}
   },
   topCategory: {
 	  label: 'Top Category',
@@ -129,13 +134,13 @@ const widgetCatalog = {
 		};
 	  },
 	  render: function(data){
-		  const formatted = Math.abs(data.total).toFixed(2);
-		  return `
-		  <p style="font-size:13px; color:var(--text-secondary);">Top category</p>
-		  <span style="display:inline-block; background:${data.color}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; margin:4px 0;">${data.name}</span>
-		  <p style="font-size:24px; font-weight:500;">$${formatted}</p>
-		  `;
-	  },
+    const formatted = Math.abs(data.total).toFixed(2);
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Top category</p>
+    <span style="display:inline-block; background:${data.color}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; margin:0 0 8px;">${data.name}</span>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    `;
+},
 	  renderConfig: function(currentConfig, categories){
 		  const excludedIds = currentConfig.excludedCategoryIds ?? [];
 		  const checkboxes = categories.map(function(category){
@@ -149,7 +154,7 @@ const widgetCatalog = {
 	  label: 'incomeVsExpenses',
 	  section: 'trends',
 	  description: 'Income vs expenses trends',
-	  defaultSpan: 1,
+	  defaultSpan: 2,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const currMonthTransactions = transactions.filter(function(transaction){
@@ -166,17 +171,26 @@ const widgetCatalog = {
 		  return incomeVsExpenses;
 	  },
 	  render: function(data){
-		  return `<p style="font-size:13px; color:var(--text-secondary);">Income VS Expenses</p>
-		  <p style="font-size:24px; font-weight:500;">Income: $${data.income.toFixed(2)}</p>
-		  <p style="font-size:24px; font-weight:500;">Expenses: $${data.expense.toFixed(2)}</p>
-		  `;
-	  }
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 10px;">Income vs expenses</p>
+    <div style="display:flex; gap:24px;">
+        <div>
+            <p style="font-size:11px; color:var(--text-muted); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Income</p>
+            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--text-success); margin:0;">$${data.income.toFixed(2)}</p>
+        </div>
+        <div>
+            <p style="font-size:11px; color:var(--text-muted); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Expenses</p>
+            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--text-danger); margin:0;">$${data.expense.toFixed(2)}</p>
+        </div>
+    </div>
+    `;
+}
   },
   paymentSplit: {
 	  label: 'paymentSplit',
 	  section: 'trends',
 	  description: 'Your cash vs credit transactions',
-	  defaultSpan: 1,
+	  defaultSpan: 2,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const transactionsFiltered = transactions.filter(function(transaction){
@@ -190,13 +204,20 @@ const widgetCatalog = {
 		  return total;
 	  },
 	  render: function(data){
-		  const creditPercent = (data.credit / (data.credit + data.cash)) * 100
-		  const cashPercent = (data.cash / (data.credit + data.cash)) * 100
-		  return `<p style="font-size:13px; color:var(--text-secondary);">Payment Split</p>
-		  <p style="font-size:24px; font-weight:500;">Credit: ${(creditPercent).toFixed(2)}%</p>
-		  <p style="font-size:24px; font-weight:500;">Cash: ${(cashPercent).toFixed(2)}%</p>
-		  `;
-	  }
+    const creditPercent = (data.credit / (data.credit + data.cash)) * 100;
+    const cashPercent = (data.cash / (data.credit + data.cash)) * 100;
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 10px;">Payment split</p>
+    <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:8px;">
+        <div style="width:${creditPercent}%; background:var(--fill-accent);"></div>
+        <div style="width:${cashPercent}%; background:var(--fill-warning);"></div>
+    </div>
+    <div style="display:flex; gap:16px; font-size:12px; color:var(--text-secondary);">
+        <span>Credit ${creditPercent.toFixed(2)}%</span>
+        <span>Cash ${cashPercent.toFixed(2)}%</span>
+    </div>
+    `;
+}
   },
   biggestTransaction: {
 	  label: 'biggestTransaction',
@@ -217,11 +238,12 @@ const widgetCatalog = {
 		  }
 	  },
 	  render: function(data){
-		  return `<p style="font-size:13px; color:var(--text-secondary);">Biggest Transaction</p>
-		  <p style="font-size:24px; font-weight:500;">${data.description}</p>
-		  <p style="font-size:24px; font-weight:500;">Amount: $${Math.abs(data.amount).toFixed(2)}</p>
-		  `;
-	  }
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Biggest transaction</p>
+    <p style="font-size:14px; font-weight:500; margin:0 0 2px;">${data.description}</p>
+    <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; margin:0;">$${Math.abs(data.amount).toFixed(2)}</p>
+    `;
+}
   },
   avgTransaction: {
 	  label: 'avgTransaction',
@@ -242,10 +264,12 @@ const widgetCatalog = {
 		 return { avgTransaction };
 	  },
 	  render: function(data){
-		  return `<p style="font-size:13px; color:var(--text-secondary);">Average Transaction</p>
-		  <p style="font-size:24px; font-weight:500;">$${data.avgTransaction.toFixed(2)}</p>
-		  `;
-	  }
+    const formatted = data.avgTransaction.toFixed(2);
+    return `
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">Average transaction</p>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; margin:0;">$${formatted}</p>
+    `;
+}
   }
   
   
