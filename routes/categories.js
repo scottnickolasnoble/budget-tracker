@@ -9,15 +9,17 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 router.use(isAuthenticated); 
 
 router.get('/', async function(request, response){
-	const result = await pool.query('SELECT * FROM categories');
+	const user_id = request.session.userId;
+	const result = await pool.query('SELECT * FROM categories WHERE user_id = $1', [user_id]);
 	response.json(result.rows);
 });
 router.post('/', validateCategory, async function(request, response){
 	const {name, color, limit} = request.body;
+	const user_id = request.session.userId;
 	const limitValue = limit === '' ? null : limit;
 	const result = await pool.query(
-		'INSERT INTO categories (name, color, "limit") VALUES ($1, $2, $3) RETURNING *',
-		[name, color, limitValue]
+		'INSERT INTO categories (name, color, "limit", user_id) VALUES ($1, $2, $3, $4) RETURNING *',
+		[name, color, limitValue, user_id]
 	);
 	response.status(201).json(result.rows[0]);
 });

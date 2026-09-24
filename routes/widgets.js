@@ -6,13 +6,15 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 router.use(isAuthenticated); 
 
 router.get('/', async function(request, response){
-	const fileContents = await pool.query('SELECT * FROM widgets');
+	const user_id = request.session.userId;
+	const fileContents = await pool.query('SELECT * FROM widgets WHERE user_id = $1', [user_id]);
 	response.json(fileContents.rows);
 });
 
 router.post('/', async function(request, response){
 	const { type, position, span, config } = request.body;
-	const result = await pool.query(`INSERT INTO widgets (type, position, span, config) VALUES ($1, $2, $3, $4::jsonb) RETURNING *`,[type, position, span, config]);
+	const user_id = request.session.userId;
+	const result = await pool.query(`INSERT INTO widgets (type, position, span, config, user_id) VALUES ($1, $2, $3, $4::jsonb, $5) RETURNING *`,[type, position, span, config, user_id]);
 	
 	response.status(201).json(result.rows[0]);
 });

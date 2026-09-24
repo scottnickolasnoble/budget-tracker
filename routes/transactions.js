@@ -8,14 +8,17 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 router.use(isAuthenticated); 
 
 router.get('/', async function(request, response){
-	const fileContents = await pool.query('SELECT * FROM transactions');
+	const user_id = request.session.userId;
+	const fileContents = await pool.query('SELECT * FROM transactions WHERE user_id = $1', [user_id]);
 	response.json(fileContents.rows);
 });
 router.post('/', validateTransactions, async function(request, response){
 	const { date, description, amount, paymentmethod, category_id } = request.body;
+	const user_id = request.session.userId;
+	
 	const result = await pool.query(
-		'INSERT INTO transactions (date, description, amount, paymentmethod, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-		[date, description, amount, paymentmethod, category_id]
+		'INSERT INTO transactions (date, description, amount, paymentmethod, category_id, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+		[date, description, amount, paymentmethod, category_id, user_id]
 	);
 	response.status(201).json(result.rows[0]);
 });
