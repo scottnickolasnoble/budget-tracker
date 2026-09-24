@@ -13,11 +13,12 @@ openRegisterLink.addEventListener('click', function(event){
 
 registerCancelBtn.addEventListener('click', function(event){
 	registerModal.style.display = 'none';
-})
+});
 
 /////SUBMIT PRESSED////////////
 form.addEventListener('submit', async function(event) {
 	//////////PREVENTS PAGE FROM CONSTANTLY RELOADING
+	/*
 	event.preventDefault();
 	
 	const email = document.getElementById('email').value;
@@ -56,4 +57,5 @@ const response = await fetch('/api/auth/login', {
 		const result = await response.json();
 		loginMessage.textContent = result.error;
 	}
+	*/
 });
