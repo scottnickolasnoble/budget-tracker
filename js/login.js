@@ -70,6 +70,7 @@ form.addEventListener('submit', async function(event) {
 	const password = document.getElementById('password').value;
 	const emailField = document.getElementById('email-field');
 	const passwordField = document.getElementById('password-field');
+	const loginMessage = document.getElementById('login-message');
 	
 	emailField.classList.remove('has-error');
 	passwordField.classList.remove('has-error');
