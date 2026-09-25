@@ -445,7 +445,7 @@ a:hover { text-decoration-color: var(--accent); }
     border-right: none;
 
 @media (max-width: 768px) {
-
+body { background: red !important; }
   .app-shell {
     flex-direction: column;
   }
