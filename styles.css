@@ -520,6 +520,31 @@ a:hover { text-decoration-color: var(--accent); }
   border-radius: 4px;
   background: var(--ink);
 }
+
+.limit-figures {
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.limit-figures.is-over {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+.limit-bar.is-over {
+  border-color: var(--negative);
+}
+
+.limit-over-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--negative);
+}
 /* -----------------------------------------------------------
    Responsive: below 720px, collapse the sidebar into a top bar.
    We'll build this out further once the dashboard exists.
