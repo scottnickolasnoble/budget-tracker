@@ -447,7 +447,7 @@ a:hover { text-decoration-color: var(--accent); }
 }
 
 /* Phone */
-@media (max-width: 768px) {
+@media (max-width: 1099px) {
 
   .app-shell {
     flex-direction: column;
