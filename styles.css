@@ -444,8 +444,9 @@ a:hover { text-decoration-color: var(--accent); }
     overflow-x: auto;
     border-right: none;
   }
+  
 @media (max-width: 768px) {
-body { background: red !important; }
+
   .app-shell {
     flex-direction: column;
   }
@@ -482,11 +483,42 @@ body { background: red !important; }
     gap: var(--space-3);
   }
 
-  .main-content table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+.main-content table thead {
+  display: none;
+}
+
+.main-content table,
+.main-content tbody,
+.main-content tr,
+.main-content td {
+  display: block;
+  width: 100%;
+}
+
+.main-content tr {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.main-content td {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) 0;
+  border: none;
+}
+
+.main-content td::before {
+  content: attr(data-label);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
 
   .center-screen {
     padding: var(--space-4);

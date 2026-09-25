@@ -213,21 +213,26 @@ function renderTransactions(transactionList) {
     const amountAbs = Math.abs(transaction.amount).toFixed(2);
 
     row.innerHTML = `
-      <td>${transaction.date}</td>
-      <td>${transaction.description}</td>
-      <td><span class="tag" style="background:${tagColor};">${matchingCategory?.name ?? 'Uncategorized'}</span></td>
-      <td class="figure ${amountClass}">${amountSign}$${amountAbs}</td>
-	  <td>${transaction.paymentmethod.charAt(0).toUpperCase() + transaction.paymentmethod.slice(1)}</td>
+      <td data-label="Date">${formatDate(transaction.date)}</td>
+      <td data-label="Description">${transaction.description}</td>
+      <td data-label="Category"><span class="tag" style="background:${tagColor};">${matchingCategory?.name ?? 'Uncategorized'}</span></td>
+      <td data-label="Amount" class="figure ${amountClass}">${amountSign}$${amountAbs}</td>
+	  <td data-label="Payment">${transaction.paymentmethod.charAt(0).toUpperCase() + transaction.paymentmethod.slice(1)}</td>
       <td>
-        <button class="btn btn-secondary" data-action="edit">Edit</button>
-        <button class="btn btn-danger" data-action="delete">Delete</button>
+        <button data-label="editBtn" class="btn btn-secondary" data-action="edit">Edit</button>
+        <button data-label="cancelBtn" class="btn btn-danger" data-action="delete">Delete</button>
       </td>
     `;
 
     tbody.appendChild(row);
   });
 }
-
+function formatDate(dateString) {
+  const [year, month, day] = dateString.split('-');
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+}
 function transactionsToCSV(transactionList) {
   const headers = ['id', 'date', 'description', 'category', 'amount', 'paymentMethod','statementId'];
   const headerRow = headers.join(',');
