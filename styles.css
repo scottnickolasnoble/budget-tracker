@@ -528,7 +528,7 @@ a:hover { text-decoration-color: var(--accent); }
     width: 28px;
     height: 28px;
   }
-  .category-grid {
+.widget-grid.category-grid {
   grid-template-columns: 1fr;
 }
 .category-card .flex-between {
