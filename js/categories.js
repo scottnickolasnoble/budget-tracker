@@ -97,7 +97,7 @@ function renderCategories(categoryList) {
 		card.className = 'card category-card';
 		const name = category.name;
 		const color = category.color;
-		const limitText = category.limit === '' ? 'No limit set' : `Limit: $${category.limit} / month`;
+		const limitText = (category.limit === null || category.limit === '') ? 'No limit set' : `Limit: $${category.limit} / month`;
 		card.innerHTML = `
 			<div class="flex-between mb-2">
 				<span class = "tag" style="background:${color};">${category.name}</span>
