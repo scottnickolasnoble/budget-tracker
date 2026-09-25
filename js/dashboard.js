@@ -212,9 +212,9 @@ function renderCategoryChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'right',
-          labels: { font: { size: 12 }, color: getComputedStyle(document.body).getPropertyValue('--ink') }
-        }
+			position: window.innerWidth < 768 ? 'bottom' : 'right',
+			labels: { font: { size: 12 }, color: getComputedStyle(document.body).getPropertyValue('--ink') }
+}
       }
     }
   });

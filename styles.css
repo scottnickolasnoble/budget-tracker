@@ -443,3 +443,63 @@ a:hover { text-decoration-color: var(--accent); }
     flex-direction: row;
     overflow-x: auto;
     border-right: none;
+
+@media (max-width: 768px) {
+
+  /* Sidebar stacks on top instead of sitting beside the content */
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .ledger-tabs {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .ledger-tabs a {
+    white-space: nowrap;
+  }
+
+  /* Less padding around the page on small screens */
+  .main-content {
+    padding: var(--space-4);
+  }
+
+  /* Header: title and buttons stack instead of squeezing side by side */
+  .main-content > .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .main-content > .flex-between .flex {
+    flex-wrap: wrap;
+  }
+
+  /* Widgets: two columns, span-2 widgets take the full row */
+  .widget-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  /* Transactions table scrolls sideways instead of breaking the page */
+  .main-content table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Modals get breathing room from the screen edges */
+  .center-screen {
+    padding: var(--space-4);
+  }
+
+  /* Bigger delete button for fingers instead of a mouse */
+  .widget-remove-btn {
+    width: 28px;
+    height: 28px;
+  }
+}
