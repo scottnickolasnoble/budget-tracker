@@ -353,21 +353,6 @@ render: function(data){
   `;
 }
   }
-  calculate: function(transactions, categories, config){
-		  const currDate = getDate('current');
-		  const currMonthTransactions = transactions.filter(function(transaction){
-			  return transaction.date.startsWith(currDate);
-		  });
-		  const incomeVsExpenses = currMonthTransactions.reduce(function(sum, current){
-			  if(current.amount < 0){
-				  sum.expense += Math.abs(current.amount);
-			  } else {
-				  sum.income += Number(current.amount);
-			  }
-			  return sum;
-		  }, {income: 0, expense: 0});
-		  return incomeVsExpenses;
-	  }
   
   // more widget types go here
 };
