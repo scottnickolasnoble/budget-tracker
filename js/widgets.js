@@ -351,6 +351,31 @@ render: function(data){
 			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:${data.hasIncome ? color : 'var(--ink-soft)'}; margin:0;">${value}</p>
   `;
 }
+  }, 
+  transactionCount: {
+	  label: 'transactionCount',
+	  section: 'snapshot',
+	  description: 'Amount of transactions this month',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const totalTransactions = transactions.reduce(function(sum,current){
+			  if(transaction.amount < 0){
+				  sum++;
+			  }
+			  return sum;
+		  })
+		  return { totalTransactions };
+	  }, 
+	  render: function(data){
+
+		return `<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+			<i class="ti ti-number-99-small" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+			<p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Transaction count</p>
+			</div>
+			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500;margin:0;">${data.totalTransactions}</p>
+  `;  
+	  }
   }
   
   // more widget types go here
