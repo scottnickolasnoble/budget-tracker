@@ -11,6 +11,9 @@ document.getElementById('edit-layout-btn').addEventListener('click', function(ev
 	renderAllWidgets(widgets, isEditMode);
 });
 
+document.getElementById('add-transaction-btn').addEventListener('click',function(event){
+	window.location.href = 'transactions.html';
+});
 document.getElementById('add-widget-close').addEventListener('click', function() {
   document.getElementById('add-widget-modal').style.display = 'none';
 });
