@@ -219,8 +219,7 @@ function renderCategoryLimits() {
   emptyMessage.style.display = 'none';
 
   list.innerHTML = limitedCategories.map(function(category) {
-    const isOver = spentTotal > limitValue;
-	const overBy = spentTotal - limitValue;
+    
 	const spentTotal = transactions
       .filter(function(transaction) {
         return transaction.category_id === category.id &&
@@ -233,20 +232,26 @@ function renderCategoryLimits() {
 
     const limitValue = Number(category.limit);
     const percentage = Math.min((spentTotal / limitValue) * 100, 100);
-
+	const isNear = !isOver && spentTotal >= limitValue * 0.8;
+	const remaining = limitValue - spentTotal;
+	const status = isOver ? 'is-over' : isNear ? 'is-near' : '';
     return `
   <div class="limit-row">
     <div class="flex-between mb-2">
       <span class="tag" style="background:${category.color};">${category.name}</span>
-      <span class="limit-figures${isOver ? ' is-over' : ''}">
+      <span class="limit-figures ${status}">
         <span class="figure">$${spentTotal.toFixed(2)}</span> of
         <span class="figure">$${limitValue.toFixed(2)}</span>
       </span>
     </div>
-    <div class="limit-bar${isOver ? ' is-over' : ''}">
+    <div class="limit-bar ${status}">
       <div class="limit-bar-fill" style="width:${percentage}%; background:${category.color};"></div>
     </div>
-    ${isOver ? `<p class="limit-over-note"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Over budget by $${overBy.toFixed(2)}</p>` : ''}
+    ${isOver
+      ? `<p class="limit-note is-over"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Over budget by $${overBy.toFixed(2)}</p>`
+      : isNear
+        ? `<p class="limit-note is-near"><i class="ti ti-alert-circle" aria-hidden="true"></i> Almost at limit, $${remaining.toFixed(2)} left</p>`
+        : ''}
   </div>
 `;
   }).join('');
