@@ -103,7 +103,69 @@ function populateWidgetTypeOptions(){
 		return `<option value="${type}">${widgetCatalog[type].label}</option> `
 	}).join('');
 }
+const tutorialSteps = [
+  { icon: 'ti-notebook', title: 'Welcome to Ledger', body: "A simple way to see where your money goes. Here's how to get set up in under a minute." },
+  { icon: 'ti-tags', title: 'Create your categories', body: 'Categories group your spending, like groceries or rent. You need at least one before adding transactions.' },
+  { icon: 'ti-list-details', title: 'Add your transactions', body: 'Log income and expenses, and tag each one with a category and payment method.' },
+  { icon: 'ti-layout-dashboard', title: 'Watch your dashboard', body: 'Your widgets update automatically. Tap Edit widgets to add, remove, or customize them. Find this guide again with the help button.' }
+];
 
+let tutorialIndex = 0;
+
+function renderTutorialStep() {
+  const step = tutorialSteps[tutorialIndex];
+  const isLast = tutorialIndex === tutorialSteps.length - 1;
+
+  document.getElementById('tutorial-icon').innerHTML = `<i class="ti ${step.icon}" aria-hidden="true"></i>`;
+  document.getElementById('tutorial-step').textContent = `Step ${tutorialIndex + 1} of ${tutorialSteps.length}`;
+  document.getElementById('tutorial-title').textContent = step.title;
+  document.getElementById('tutorial-body').textContent = step.body;
+
+  document.getElementById('tutorial-dots').innerHTML = tutorialSteps.map(function(s, index) {
+    return `<span class="tutorial-dot${index === tutorialIndex ? ' active' : ''}"></span>`;
+  }).join('');
+
+  document.getElementById('tutorial-back').style.visibility = tutorialIndex === 0 ? 'hidden' : 'visible';
+  document.getElementById('tutorial-next').textContent = isLast ? 'Get started' : 'Next';
+}
+
+function openTutorial() {
+  tutorialIndex = 0;
+  renderTutorialStep();
+  document.getElementById('tutorial-modal').style.display = 'flex';
+}
+
+async function closeTutorial() {
+  document.getElementById('tutorial-modal').style.display = 'none';
+  await fetch('/api/auth/tutorial-seen', { method: 'PATCH' });
+}
+
+async function checkTutorial() {
+  const response = await fetch('/api/auth/me');
+  const user = await response.json();
+  if (!user.has_seen_tutorial) {
+    openTutorial();
+  }
+}
+
+document.getElementById('tutorial-next').addEventListener('click', function() {
+  if (tutorialIndex === tutorialSteps.length - 1) {
+    closeTutorial();
+  } else {
+    tutorialIndex++;
+    renderTutorialStep();
+  }
+});
+
+document.getElementById('tutorial-back').addEventListener('click', function() {
+  if (tutorialIndex > 0) {
+    tutorialIndex--;
+    renderTutorialStep();
+  }
+});
+
+document.getElementById('tutorial-skip').addEventListener('click', closeTutorial);
+document.getElementById('help-btn').addEventListener('click', openTutorial);
 document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString('en-US', {
   year: 'numeric', month: 'long', day: 'numeric'
 });
@@ -322,6 +384,7 @@ async function init(){
 	renderCategoryLimits();
 	renderCategoryChart();
 	document.getElementById('dashboard-month').value = selectedMonth;
+	await checkTutorial();
 }
 
 

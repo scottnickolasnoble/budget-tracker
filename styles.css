@@ -434,7 +434,39 @@ a:hover { text-decoration-color: var(--accent); }
 .mb-4 { margin-bottom: var(--space-4); }
 .text-soft { color: var(--ink-soft); }
 .text-center { text-align: center; }
- 
+ .tutorial-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--positive-bg);
+  color: var(--positive);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+  font-size: 24px;
+}
+
+.tutorial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: var(--space-4) 0;
+}
+
+.tutorial-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: width var(--transition), background var(--transition);
+}
+
+.tutorial-dot.active {
+  width: 18px;
+  border-radius: 4px;
+  background: var(--ink);
+}
 /* -----------------------------------------------------------
    Responsive: below 720px, collapse the sidebar into a top bar.
    We'll build this out further once the dashboard exists.

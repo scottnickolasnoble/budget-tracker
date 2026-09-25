@@ -46,6 +46,9 @@
           <button class="btn btn-primary" id="add-transaction-btn" type="button">
             + Add transaction
           </button>
+		  <button class="btn btn-secondary" id="help-btn" type="button" aria-label="Open the getting started guide">
+			<i class="ti ti-help" aria-hidden="true"></i>
+			</button>
         </div>
       </div>
 
@@ -129,6 +132,22 @@
 
     <h3 class="mt-4">Trends &amp; comparisons</h3>
     <div class="widget-picker-grid" data-section="trends"></div>
+  </div>
+	</div>
+	<div id="tutorial-modal" class="center-screen" style="display:none; position:fixed; inset:0; background: rgba(31,42,36,0.35);">
+  <div class="card" style="width:100%; max-width:380px; text-align:center;">
+    <div id="tutorial-icon" class="tutorial-icon"></div>
+    <p id="tutorial-step" class="field-hint" style="margin:0 0 var(--space-1);"></p>
+    <h2 id="tutorial-title"></h2>
+    <p id="tutorial-body" class="text-soft" style="min-height:72px;"></p>
+    <div id="tutorial-dots" class="tutorial-dots"></div>
+    <div class="flex-between">
+      <button type="button" id="tutorial-skip" class="btn btn-secondary" style="border:none;">Skip</button>
+      <div class="flex gap-2">
+        <button type="button" id="tutorial-back" class="btn btn-secondary">Back</button>
+        <button type="button" id="tutorial-next" class="btn btn-primary">Next</button>
+      </div>
+    </div>
   </div>
 </div>
     </main>

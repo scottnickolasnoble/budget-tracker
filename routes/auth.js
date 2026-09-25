@@ -4,7 +4,22 @@ const bcrypt = require('bcrypt');
 const pool = require('../db/pool');
 const validateRegister = require('../middleware/validateRegister');
 const loginLimiter = require('../middleware/loginLimiter');
+const isAuthenticated = require('../middleware/isAuthenticated');
 
+router.get('/me', isAuthenticated, async function(request, response) {
+  const user_id = request.session.userId;
+  const result = await pool.query(
+    'SELECT id, email, has_seen_tutorial FROM users WHERE id = $1',
+    [user_id]
+  );
+  response.json(result.rows[0]);
+});
+
+router.patch('/tutorial-seen', isAuthenticated, async function(request, response) {
+  const user_id = request.session.userId;
+  await pool.query('UPDATE users SET has_seen_tutorial = true WHERE id = $1', [user_id]);
+  response.status(200).json({ message: 'Tutorial marked as seen' });
+});
 router.post('/register', validateRegister, async function(request, response){
 	const {email, password} = request.body;
 	const password_hash = await bcrypt.hash(password, 10);
