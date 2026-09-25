@@ -327,9 +327,9 @@ render: function(data){
 		  });
 		  const total = currMonthTransactions.reduce(function(sum,current){
 			  if(current.amount > 0){
-				  sum.income += current.amount;
+				  sum.income += Number(current.amount);
 			  } else {
-				  sum.expense += Math.abs(current.amount);
+				  sum.expense += Math.abs(Number(current.amount));
 			  }
 			  return sum;
 		  },{income:0,expense:0});
