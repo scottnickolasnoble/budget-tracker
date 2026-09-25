@@ -185,7 +185,7 @@ render: function(data){
         <i class="ti ti-arrows-exchange" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
         <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Income vs expenses</p>
     </div>
-    <div style="display:flex; gap:24px;">
+    <div style="display:flex; flex-wrap:wrap; gap:12px 24px;">
         <div>
             <p style="font-size:10px; color:var(--ink-soft); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Income</p>
             <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--positive); margin:0;">$${data.income.toFixed(2)}</p>
@@ -308,6 +308,7 @@ function renderAllWidgets(userWidgets, isEditMode){
 			widgetElement.className = 'card widget-card' + (isEditMode ? ' jiggle-card' : '');
 			widgetElement.innerHTML = html;
 			widgetElement.dataset.widgetId = widget.id;
+			widgetElement.style.gridColumn = 'span ' + widget.span;
 			if (isEditMode){
 				widgetElement.innerHTML += `<button class="widget-remove-btn" data-widget-id="${widget.id}">x</button>`;
 			}
