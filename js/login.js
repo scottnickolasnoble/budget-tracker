@@ -165,7 +165,7 @@ form.addEventListener('submit', async function(event) {
 	//////////PREVENTS PAGE FROM CONSTANTLY RELOADING
 	
 	event.preventDefault();
-	clearMessage(loginMessage);
+	//clearMessage(loginMessage);
 	const email = document.getElementById('email').value;
 	const password = document.getElementById('password').value;
 	const emailField = document.getElementById('email-field');
