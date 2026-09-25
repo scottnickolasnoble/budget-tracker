@@ -232,6 +232,8 @@ function renderCategoryLimits() {
 
     const limitValue = Number(category.limit);
     const percentage = Math.min((spentTotal / limitValue) * 100, 100);
+	const isOver = spentTotal > limitValue;
+    const overBy = spentTotal - limitValue;
 	const isNear = !isOver && spentTotal >= limitValue * 0.8;
 	const remaining = limitValue - spentTotal;
 	const status = isOver ? 'is-over' : isNear ? 'is-near' : '';
