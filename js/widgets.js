@@ -364,11 +364,11 @@ render: function(data){
 				  sum++;
 			  }
 			  return sum;
-		  })
+		  },0)
 		  return { totalTransactions };
 	  }, 
 	  render: function(data){
-		console.log(data.totalTransactions);
+		
 		return `<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
 			<i class="ti ti-number-99-small" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
 			<p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Transaction count</p>
