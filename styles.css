@@ -202,10 +202,7 @@ a:hover { text-decoration-color: var(--accent); }
 /* Categories page specifically caps at 4 cards per row, regardless
    of screen width — auto-fit alone would keep packing more columns
    in on wider screens. */
-#default-categories-grid,
-#user-categories-grid {
-  grid-template-columns: repeat(4, minmax(220px, 1fr));
-}
+
  
 /* -----------------------------------------------------------
    4. COMPONENTS
