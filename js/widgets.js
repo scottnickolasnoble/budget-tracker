@@ -237,13 +237,14 @@ render: function(data){
 	  description: 'Largest transaction this month',
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
-		  if (filteredTransactions.length === 0) {
-			return { description: 'No expenses yet', amount: 0 };
-}
+
 		  const currDate = getDate('current');
 		  const filteredTransactions = transactions.filter(function(transaction){
 			  return transaction.date.startsWith(currDate) && Number(transaction.amount) < 0;
 		  });
+		  	if (filteredTransactions.length === 0) {
+			return { description: 'No expenses yet', amount: 0 };
+			}
 		  const biggestTransaction = filteredTransactions.reduce(function(sum,current){
 			 return Math.abs(sum.amount) > Math.abs(current.amount) ? sum : current; 
 		  });
