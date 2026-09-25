@@ -177,22 +177,44 @@ render: function(data){
 		  return incomeVsExpenses;
 	  },
 render: function(data){
-    return `
-    <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px;">
-        <i class="ti ti-arrows-exchange" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
-        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Income vs expenses</p>
-    </div>
-    <div style="display:flex; flex-wrap:wrap; gap:12px 24px;">
-        <div>
-            <p style="font-size:10px; color:var(--ink-soft); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Income</p>
-            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--positive); margin:0;">$${data.income.toFixed(2)}</p>
+  const net = data.income - data.expense;
+  const netSign = net >= 0 ? '+' : '-';
+  const netColor = net >= 0 ? 'var(--positive)' : 'var(--negative)';
+
+  const largest = Math.max(data.income, data.expense);
+  const incomeWidth = largest === 0 ? 0 : (data.income / largest) * 100;
+  const expenseWidth = largest === 0 ? 0 : (data.expense / largest) * 100;
+
+  return `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-5); flex-wrap:wrap;">
+      <div>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+          <i class="ti ti-arrows-exchange" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+          <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Income vs expenses</p>
         </div>
-        <div>
-            <p style="font-size:10px; color:var(--ink-soft); margin:0 0 3px; text-transform:uppercase; letter-spacing:0.03em;">Expenses</p>
-            <p style="font-family:var(--font-mono); font-size:19px; font-weight:500; color:var(--negative); margin:0;">$${data.expense.toFixed(2)}</p>
+        <p style="font-size:11px; color:var(--ink-soft); margin:0 0 2px;">Net this month</p>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:${netColor}; margin:0;">${netSign}$${Math.abs(net).toFixed(2)}</p>
+      </div>
+
+      <div style="flex:1; min-width:200px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+          <span style="color:var(--ink-soft);">Income</span>
+          <span style="font-family:var(--font-mono); color:var(--positive);">$${data.income.toFixed(2)}</span>
         </div>
+        <div style="height:8px; background:var(--paper); border-radius:4px; overflow:hidden; margin-bottom:10px;">
+          <div style="width:${incomeWidth}%; height:100%; background:var(--positive);"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+          <span style="color:var(--ink-soft);">Expenses</span>
+          <span style="font-family:var(--font-mono); color:var(--negative);">$${data.expense.toFixed(2)}</span>
+        </div>
+        <div style="height:8px; background:var(--paper); border-radius:4px; overflow:hidden;">
+          <div style="width:${expenseWidth}%; height:100%; background:var(--negative);"></div>
+        </div>
+      </div>
     </div>
-    `;
+  `;
 }
   },
   paymentSplit: {
