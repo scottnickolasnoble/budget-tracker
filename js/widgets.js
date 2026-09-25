@@ -360,7 +360,7 @@ render: function(data){
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
 		  const totalTransactions = transactions.reduce(function(sum,current){
-			  if(transaction.amount < 0){
+			  if(transactions.amount < 0){
 				  sum++;
 			  }
 			  return sum;
