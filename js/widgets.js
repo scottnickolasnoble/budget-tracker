@@ -235,8 +235,8 @@ render: function(data){
 		  return total;
 	  },
 render: function(data){
-    const creditPercent = (data.credit / (data.credit + data.cash)) * 100;
-    const cashPercent = (data.cash / (data.credit + data.cash)) * 100;
+    const creditPercent = (Number(data.credit) / (Number(data.credit) + Number(data.cash))) * 100;
+    const cashPercent = (Number(data.cash) / (Number(data.credit + data.cash))) * 100;
     return `
     <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px;">
         <i class="ti ti-chart-pie" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
@@ -368,12 +368,12 @@ render: function(data){
 		  return { totalTransactions };
 	  }, 
 	  render: function(data){
-		
+		const value = data.totalTransactions ? `${data.totalTransactions}` : 'No transactions yet';
 		return `<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
 			<i class="ti ti-number-99-small" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
 			<p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Transaction count</p>
 			</div>
-			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500;margin:0;">${data.totalTransactions}</p>
+			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500;margin:0;">${value}</p>
   `;  
 	  }
   }
