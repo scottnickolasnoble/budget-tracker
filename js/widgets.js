@@ -235,8 +235,8 @@ render: function(data){
 		  return total;
 	  },
 render: function(data){
-    const creditPercent = (Number(data.credit) / (Number(data.credit) + Number(data.cash))) * 100;
-    const cashPercent = (Number(data.cash) / (Number(data.credit + data.cash))) * 100;
+    const creditPercent = (data.credit / (data.credit + data.cash)) * 100;
+    const cashPercent = (data.cash / (data.credit + data.cash)) * 100;
     return `
     <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px;">
         <i class="ti ti-chart-pie" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
@@ -247,8 +247,8 @@ render: function(data){
         <div style="width:${cashPercent}%; background:var(--ink-soft);"></div>
     </div>
     <div style="display:flex; gap:16px; font-size:12px; color:var(--ink-soft);">
-        <span>Credit ${creditPercent.toFixed(2)}%</span>
-        <span>Cash ${cashPercent.toFixed(2)}%</span>
+        <span>Credit ${Number(creditPercent.toFixed(2))}%</span>
+        <span>Cash ${Number(cashPercent.toFixed(2))}%</span>
     </div>
     `;
 }
