@@ -17,7 +17,8 @@ const filterReset = document.getElementById('filter-reset-btn');
 let transactions = [];
 let categories = [];
 document.getElementById("month-label").innerHTML = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
+let visibleCount = 50;
+let currentList = [];
 
 document.addEventListener('click', function(event){
 	const clickedInsideButton = event.target.closest('#category-filter-btn');
@@ -91,6 +92,10 @@ filterCategoryForm.addEventListener('change', function(event){
 	}
 
 	applyFilters();
+});
+document.getElementById('show-more-btn').addEventListener('click', function() {
+  visibleCount += 50;
+  renderTransactions(currentList);
 });
 transactionForm.addEventListener('submit', async function(event) {
 	event.preventDefault();
@@ -198,9 +203,11 @@ function renderTransactions(transactionList) {
 			return a.id > b.id ? -1 : 1;
 		}
 	});
+	currentList = transactionList;
+	const visibleTransactions = transactionList.slice(0, visibleCount);
 	tbody.innerHTML = ''; // clear whatever's there before we redraw
 	
-	transactionList.forEach(function(transaction) {
+	visibleTransactions.forEach(function(transaction) {
     const matchingCategory = categories.find(function(category) {
     return category.id === transaction.category_id;
 	});
@@ -226,6 +233,15 @@ function renderTransactions(transactionList) {
 
     tbody.appendChild(row);
   });
+
+  const showMoreBtn = document.getElementById('show-more-btn');
+  const remaining = transactionList.length - visibleCount;
+  if (remaining > 0) {
+    showMoreBtn.style.display = 'block';
+    showMoreBtn.textContent = `Show more (${remaining} remaining)`;
+  } else {
+    showMoreBtn.style.display = 'none';
+  }
 }
 function formatDate(dateString) {
   const [year, month, day] = dateString.split('-');
@@ -305,6 +321,7 @@ function resetFilters(){
 	document.getElementById("filter-search").value = ""
 }
 function applyFilters(){
+	visibleCount = 50;
 	const allCheckbox = document.getElementById('category-filter-all');
 	const date = document.getElementById('filter-month').value;
 	//const category = document.getElementById('filter-category').value;
