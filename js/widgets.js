@@ -314,8 +314,60 @@ render: function(data){
     <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">$${formatted}</p>
     `;
 }
+  },
+  savingsRate: {
+	  label: 'savingsRate',
+	  section: 'snapshot',
+	  description: 'Percent of income you kept this month',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const currMonthTransactions = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate);
+		  });
+		  const total = currMonthTransactions.reduce(function(sum,current){
+			  if(current.amount > 0){
+				  sum.income += current.amount;
+			  } else {
+				  sum.expense += Math.abs(current.amount);
+			  }
+			  return sum;
+		  },{income:0,expense:0});
+		 if(total.income === 0){
+			 return { savingsRate: 0, hasIncome: false };
+		 } 
+		 
+		 const savingsRate = ((total.income-total.expense)/total.income)*100;
+		 return { savingsRate, hasIncome: true };
+	  },
+	  render: function(data){
+		const color = data.savingsRate >= 0 ? 'var(--positive)' : 'var(--negative)';
+		const value = data.hasIncome ? `${data.savingsRate.toFixed(1)}%` : 'No income yet';
+
+		return 
+			`<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+			<i class="ti ti-pig-money" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+			<p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Savings rate</p>
+			</div>
+			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:${data.hasIncome ? color : 'var(--ink-soft)'}; margin:0;">${value}</p>
+  `;
+}
   }
-  
+  calculate: function(transactions, categories, config){
+		  const currDate = getDate('current');
+		  const currMonthTransactions = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate);
+		  });
+		  const incomeVsExpenses = currMonthTransactions.reduce(function(sum, current){
+			  if(current.amount < 0){
+				  sum.expense += Math.abs(current.amount);
+			  } else {
+				  sum.income += Number(current.amount);
+			  }
+			  return sum;
+		  }, {income: 0, expense: 0});
+		  return incomeVsExpenses;
+	  }
   
   // more widget types go here
 };
