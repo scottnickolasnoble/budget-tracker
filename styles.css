@@ -443,7 +443,7 @@ a:hover { text-decoration-color: var(--accent); }
     flex-direction: row;
     overflow-x: auto;
     border-right: none;
-
+  }
 @media (max-width: 768px) {
 body { background: red !important; }
   .app-shell {
