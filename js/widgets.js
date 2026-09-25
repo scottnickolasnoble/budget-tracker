@@ -359,7 +359,10 @@ render: function(data){
 	  defaultSpan: 1,
 	  calculate: function(transactions, categories, config){
 		  const currDate = getDate('current');
-		  const totalTransactions = transactions.reduce(function(sum,current){
+		  const filteredTransactions = transactions.filter(function(transaction){
+			  return transaction.date.startsWith(currDate);
+		  });
+		  const totalTransactions = filteredTransactions.reduce(function(sum,current){
 			  if(current.amount < 0){
 				  sum++;
 			  }
