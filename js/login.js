@@ -7,7 +7,19 @@ const registerForm = document.getElementById('register-form');
 
 const forgotModal = document.getElementById('forgot-modal');
 const forgotMessage = document.getElementById('forgot-message');
+function showMessage(element, text, type) {
+  const icon = type === 'error' ? 'ti-alert-circle' : 'ti-circle-check';
+  element.innerHTML = `<i class="ti ${icon}" aria-hidden="true"></i><span></span>`;
+  element.querySelector('span').textContent = text;
+  element.classList.remove('is-error', 'is-success');
+  void element.offsetWidth;
+  element.classList.add(type === 'error' ? 'is-error' : 'is-success');
+}
 
+function clearMessage(element) {
+  element.classList.remove('is-error', 'is-success');
+  element.innerHTML = '';
+}
 function resetForgotModal() {
   document.getElementById('forgot-step-email').style.display = 'block';
   document.getElementById('forgot-step-reset').style.display = 'none';
