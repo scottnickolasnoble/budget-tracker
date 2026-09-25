@@ -5,6 +5,80 @@ const openRegisterLink = document.getElementById('open-register-link');
 const registerCancelBtn = document.getElementById('register-cancel');
 const registerForm = document.getElementById('register-form');
 
+const forgotModal = document.getElementById('forgot-modal');
+const forgotMessage = document.getElementById('forgot-message');
+
+function resetForgotModal() {
+  document.getElementById('forgot-step-email').style.display = 'block';
+  document.getElementById('forgot-step-reset').style.display = 'none';
+  document.getElementById('forgot-email').value = '';
+  document.getElementById('forgot-answer').value = '';
+  document.getElementById('forgot-new-password').value = '';
+  forgotMessage.textContent = '';
+}
+
+document.getElementById('open-forgot-link').addEventListener('click', function(event) {
+  event.preventDefault();
+  resetForgotModal();
+  forgotModal.style.display = 'flex';
+});
+
+document.getElementById('forgot-cancel').addEventListener('click', function() {
+  forgotModal.style.display = 'none';
+});
+
+document.getElementById('forgot-continue').addEventListener('click', async function() {
+  const email = document.getElementById('forgot-email').value.trim();
+  forgotMessage.textContent = '';
+
+  if (email === '') {
+    forgotMessage.textContent = 'Enter your email';
+    return;
+  }
+
+  const response = await fetch('/api/auth/forgot/question', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const result = await response.json();
+
+  if (!response.ok) {
+    forgotMessage.textContent = result.error;
+    return;
+  }
+
+  document.getElementById('forgot-question').textContent = result.question;
+  document.getElementById('forgot-step-email').style.display = 'none';
+  document.getElementById('forgot-step-reset').style.display = 'block';
+});
+
+document.getElementById('forgot-submit').addEventListener('click', async function() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const answer = document.getElementById('forgot-answer').value;
+  const newPassword = document.getElementById('forgot-new-password').value;
+  forgotMessage.textContent = '';
+
+  if (answer.trim() === '' || newPassword.length < 8) {
+    forgotMessage.textContent = 'Enter your answer and a new password of at least 8 characters';
+    return;
+  }
+
+  const response = await fetch('/api/auth/forgot/reset', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, answer, newPassword })
+  });
+  const result = await response.json();
+
+  if (!response.ok) {
+    forgotMessage.textContent = result.error;
+    return;
+  }
+
+  forgotModal.style.display = 'none';
+  document.getElementById('login-message').textContent = 'Password updated. Log in with your new password.';
+});
 
 openRegisterLink.addEventListener('click', function(event){
 	event.preventDefault();
@@ -17,7 +91,13 @@ registerCancelBtn.addEventListener('click', function(event){
 
 registerForm.addEventListener('submit', async function(event){
 	event.preventDefault();
-	
+	const securityQuestion = document.getElementById('register-question').value;
+	const securityAnswer = document.getElementById('register-answer').value;
+	const questionField = document.getElementById('register-question-field');
+	const answerField = document.getElementById('register-answer-field');
+
+questionField.classList.remove('has-error');
+answerField.classList.remove('has-error');
 	const email = document.getElementById('register-email').value;
 	const password = document.getElementById('register-password').value;
 	const emailField = document.getElementById('register-email-field');
@@ -43,11 +123,19 @@ registerForm.addEventListener('submit', async function(event){
 	if (!isValid){
 		return;
 	}
-	
+	if (securityQuestion === '') {
+		questionField.classList.add('has-error');
+		isValid = false;
+	}
+
+	if (securityAnswer.trim() === '') {
+	answerField.classList.add('has-error');
+	isValid = false;
+	}
 	const response = await fetch('/api/auth/register', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({email,password})
+		body: JSON.stringify({email,password,securityQuestion,securityAnswer})
 	});
 	
 	if (response.ok){
@@ -91,6 +179,7 @@ form.addEventListener('submit', async function(event) {
 		return;
 	}
 	
+	
 const response = await fetch('/api/auth/login', {
 	method: 'POST',
 	headers: {'Content-Type' : 'application/json' },
@@ -105,3 +194,4 @@ const response = await fetch('/api/auth/login', {
 	}
 	
 });
+

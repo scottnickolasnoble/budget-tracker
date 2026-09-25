@@ -42,7 +42,9 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Log in</button>
-
+		<p class="text-center mt-4" style="font-size:0.875rem;">
+		<a href="#" id="open-forgot-link">Forgot password?</a>
+		</p>
         <!-- This is where your JS can print login errors from the
              database ("Wrong password", "No account found", etc). -->
         <p id="login-message" class="field-hint text-center mt-4" role="status"></p>
@@ -71,7 +73,26 @@
         <input type="password" id="register-password" name="password" placeholder="••••••••" required minlength="8" />
         <p class="field-error">Password must be at least 8 characters.</p>
       </div>
+		<div class="field" id="register-question-field">
+  <label for="register-question">Security question</label>
+  <select id="register-question">
+    <option value="">Choose a question</option>
+    <option>What was the name of your first pet?</option>
+    <option>What was the name of the street you grew up on?</option>
+    <option>What was your childhood best friend's first name?</option>
+    <option>What was the make of your first car?</option>
+    <option>What was the name of your favourite teacher?</option>
+    <option>In what city did your parents meet?</option>
+  </select>
+  <p class="field-error">Choose a security question.</p>
+</div>
 
+<div class="field" id="register-answer-field">
+  <label for="register-answer">Answer</label>
+  <input type="text" id="register-answer" autocomplete="off" />
+  <p class="field-hint">Used if you forget your password. Not case-sensitive.</p>
+  <p class="field-error">Enter an answer.</p>
+</div>
       <button type="submit" class="btn btn-primary btn-block">Create account</button>
       <p id="register-message" class="field-hint text-center mt-4" role="status"></p>
     </form>
@@ -79,6 +100,36 @@
     <button type="button" id="register-cancel" class="btn btn-secondary btn-block mt-4">Cancel</button>
 		</div>
 	</div>
+	<div id="forgot-modal" class="center-screen" style="display:none; position:fixed; inset:0; background: rgba(31,42,36,0.35);">
+  <div class="card" style="width:100%; max-width:420px;">
+    <h2>Reset your password</h2>
+
+    <div id="forgot-step-email">
+      <div class="field">
+        <label for="forgot-email">Email</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com" />
+      </div>
+      <button type="button" id="forgot-continue" class="btn btn-primary btn-block">Continue</button>
+    </div>
+
+    <div id="forgot-step-reset" style="display:none;">
+      <p class="field-hint" style="margin-top:0;">Your security question</p>
+      <p id="forgot-question" style="font-weight:600;"></p>
+      <div class="field">
+        <label for="forgot-answer">Answer</label>
+        <input type="text" id="forgot-answer" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="forgot-new-password">New password</label>
+        <input type="password" id="forgot-new-password" placeholder="At least 8 characters" />
+      </div>
+      <button type="button" id="forgot-submit" class="btn btn-primary btn-block">Reset password</button>
+    </div>
+
+    <p id="forgot-message" class="field-hint text-center mt-4" role="status"></p>
+    <button type="button" id="forgot-cancel" class="btn btn-secondary btn-block mt-4">Cancel</button>
+  </div>
+</div>
 </body>
 <script src="js/login.js"></script>
 </html>
