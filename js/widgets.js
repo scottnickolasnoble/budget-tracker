@@ -344,8 +344,7 @@ render: function(data){
 		const color = data.savingsRate >= 0 ? 'var(--positive)' : 'var(--negative)';
 		const value = data.hasIncome ? `${data.savingsRate.toFixed(1)}%` : 'No income yet';
 
-		return 
-			`<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+		return `<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
 			<i class="ti ti-pig-money" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
 			<p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Savings rate</p>
 			</div>
