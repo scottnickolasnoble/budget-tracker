@@ -151,9 +151,9 @@ render: function(data){
 		  const excludedIds = currentConfig.excludedCategoryIds ?? [];
 		  const checkboxes = categories.map(function(category){
 			  const isChecked = !excludedIds.includes(category.id) ? 'checked' : ''
-			  return `<label><input type="checkbox" data-category-id="${category.id}" ${isChecked}> ${category.name}</label>`;
+			  return `<label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-bottom:6px;"><input type="checkbox" data-category-id="${category.id}" ${isChecked} style="width:auto;"> ${category.name}</label>`;
 		  });
-		  return `<label>Exclude categories</label>` + checkboxes.join('');
+		  return `<div class="field"><label>Exclude categories</label>` + checkboxes.join('') + `</div>`;
 	  }
   }, 
   incomeVsExpenses: {
