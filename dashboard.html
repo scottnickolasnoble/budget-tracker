@@ -15,17 +15,22 @@
 <body>
 
   <div class="app-shell">
-
-    <!-- SIDEBAR NAV: the "ledger tabs". class="active" marks the
-         current page — for now it's hardcoded on Dashboard, later
-         your JS (or just editing the class per page) controls this. -->
-    <div class="mobile-topbar">Ledger</div>
+<div class="mobile-topbar">
+  <span>Ledger</span>
+  <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+    <i class="ti ti-logout" aria-hidden="true"></i>
+  </button>
+</div>
 
 <nav class="ledger-tabs">
   <div class="brand">Ledger</div>
-  <a href="dashboard.html" class="active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+  <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
   <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
   <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+  <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+  <button type="button" class="logout-btn nav-logout">
+    <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+  </button>
 </nav>
 
     <main class="main-content">
@@ -160,5 +165,5 @@
 
 <script src="js/widgets.js"></script>
 <script src="js/dashboard.js"></script>
-
+<script src="js/nav.js"></script>
 </html>

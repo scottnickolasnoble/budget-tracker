@@ -77,7 +77,7 @@ document.getElementById('forgot-submit').addEventListener('click', async functio
   }
 
   forgotModal.style.display = 'none';
-  document.getElementById('login-message').textContent = 'Password updated. Log in with your new password.';
+  showMessage(document.getElementById('login-message'), 'Password updated. Log in with your new password.', 'success');
 });
 
 openRegisterLink.addEventListener('click', function(event){
@@ -153,7 +153,7 @@ form.addEventListener('submit', async function(event) {
 	//////////PREVENTS PAGE FROM CONSTANTLY RELOADING
 	
 	event.preventDefault();
-	
+	clearMessage(loginMessage);
 	const email = document.getElementById('email').value;
 	const password = document.getElementById('password').value;
 	const emailField = document.getElementById('email-field');
@@ -190,7 +190,7 @@ const response = await fetch('/api/auth/login', {
 		window.location.href = 'dashboard.html';
 	} else {
 		const result = await response.json();
-		loginMessage.textContent = result.error;
+		showMessage(loginMessage, result.error, 'error');
 	}
 	
 });

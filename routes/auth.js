@@ -6,10 +6,18 @@ const validateRegister = require('../middleware/validateRegister');
 const loginLimiter = require('../middleware/loginLimiter');
 const isAuthenticated = require('../middleware/isAuthenticated');
 
+async function verifyCurrentPassword(userId, password) {
+  const result = await pool.query('SELECT password_hash FROM users WHERE id = $1', [userId]);
+  if (result.rows.length === 0) {
+    return false;
+  }
+  return bcrypt.compare(password, result.rows[0].password_hash);
+}
+
 router.get('/me', isAuthenticated, async function(request, response) {
   const user_id = request.session.userId;
   const result = await pool.query(
-    'SELECT id, email, has_seen_tutorial FROM users WHERE id = $1',
+    'SELECT id, email, has_seen_tutorial, security_question FROM users WHERE id = $1',
     [user_id]
   );
   response.json(result.rows[0]);
@@ -104,4 +112,40 @@ router.post('/logout', function(request,response){
 	});
 });
 
+router.patch('/password', isAuthenticated, loginLimiter, async function(request, response) {
+  const { currentPassword, newPassword } = request.body;
+
+  if (!currentPassword || !newPassword || newPassword.length < 8) {
+    return response.status(400).json({ error: 'Enter your current password and a new password of at least 8 characters' });
+  }
+
+  const passwordMatches = await verifyCurrentPassword(request.session.userId, currentPassword);
+  if (!passwordMatches) {
+    return response.status(401).json({ error: 'Your current password is incorrect' });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, request.session.userId]);
+  response.json({ message: 'Password updated' });
+});
+
+router.patch('/security-question', isAuthenticated, loginLimiter, async function(request, response) {
+  const { currentPassword, securityQuestion, securityAnswer } = request.body;
+
+  if (!currentPassword || !securityQuestion || !securityAnswer || securityAnswer.trim() === '') {
+    return response.status(400).json({ error: 'Choose a question, enter an answer, and enter your current password' });
+  }
+
+  const passwordMatches = await verifyCurrentPassword(request.session.userId, currentPassword);
+  if (!passwordMatches) {
+    return response.status(401).json({ error: 'Your current password is incorrect' });
+  }
+
+  const answerHash = await bcrypt.hash(securityAnswer.trim().toLowerCase(), 10);
+  await pool.query(
+    'UPDATE users SET security_question = $1, security_answer_hash = $2 WHERE id = $3',
+    [securityQuestion, answerHash, request.session.userId]
+  );
+  response.json({ message: 'Security question updated' });
+});
 module.exports = router;
