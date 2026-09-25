@@ -1,16 +1,13 @@
+// "current" = the month chosen in the dashboard's month picker (defaults to today's month)
+// "previous" = the month before that
 function getDate(condition){
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = now.getMonth() + 1;
-	const monthPadded = month.toString().padStart(2,0);
-	const prevMonth = month === 1 ? 12: month - 1;
-	const prevYear = month === 1 ? year - 1 : year;
-	const prevMonthPadded = prevMonth.toString().padStart(2,0);
-	if(condition === "current"){
-	return `${year}-${monthPadded}`;
-	} else {
-		return `${prevYear}-${prevMonthPadded}`;
-	}
+  if (condition === 'current') {
+    return selectedMonth;
+  }
+  const [year, month] = selectedMonth.split('-').map(Number);
+  const prevMonth = month === 1 ? 12 : month - 1;
+  const prevYear = month === 1 ? year - 1 : year;
+  return `${prevYear}-${String(prevMonth).padStart(2, '0')}`;
 }
 
 const widgetCatalog = {

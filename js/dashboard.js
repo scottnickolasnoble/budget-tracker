@@ -4,6 +4,9 @@ let widgets = [];
 let isEditMode = false;
 let currentlyEditingWidget = null;
 let categoryChart = null;
+const today = new Date();
+let selectedMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
 
 document.getElementById('edit-layout-btn').addEventListener('click', function(event){
 	isEditMode = !isEditMode;
@@ -92,12 +95,30 @@ document.getElementById('widgets-container').addEventListener('click', async fun
 	 renderAllWidgets(widgets, isEditMode);
  });
  document.getElementById('widget-config-type').addEventListener('change', updateConfigSection);
+ 
+ 
 function populateWidgetTypeOptions(){
 	const select = document.getElementById('widget-config-type');
 	select.innerHTML = Object.keys(widgetCatalog).map(function(type){
 		return `<option value="${type}">${widgetCatalog[type].label}</option> `
 	}).join('');
 }
+
+document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric'
+});
+document.getElementById('dashboard-month').addEventListener('change', function() {
+  if (this.value === '') {
+    selectedMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    this.value = selectedMonth;
+  } else {
+    selectedMonth = this.value;
+  }
+
+  renderAllWidgets(widgets, isEditMode);
+  renderCategoryLimits();
+  renderCategoryChart();
+});
 function populateWidgetPicker() {
   document.querySelectorAll('.widget-picker-grid').forEach(function(grid) {
     grid.innerHTML = '';
@@ -300,6 +321,7 @@ async function init(){
 	populateWidgetPicker();
 	renderCategoryLimits();
 	renderCategoryChart();
+	document.getElementById('dashboard-month').value = selectedMonth;
 }
 
 
