@@ -157,7 +157,7 @@ render: function(data){
 	  }
   }, 
   incomeVsExpenses: {
-	  label: 'incomeVsExpenses',
+	  label: 'Income Vs Expenses',
 	  section: 'trends',
 	  description: 'Income vs expenses trends',
 	  defaultSpan: 2,
@@ -218,7 +218,7 @@ render: function(data){
 }
   },
   paymentSplit: {
-	  label: 'paymentSplit',
+	  label: 'Payment Split',
 	  section: 'trends',
 	  description: 'Your cash vs credit transactions',
 	  defaultSpan: 2,
@@ -254,7 +254,7 @@ render: function(data){
 }
   },
   biggestTransaction: {
-	  label: 'biggestTransaction',
+	  label: 'Biggest Transaction',
 	  section: 'trends',
 	  description: 'Largest transaction this month',
 	  defaultSpan: 1,
@@ -287,7 +287,7 @@ render: function(data){
 }
   },
   avgTransaction: {
-	  label: 'avgTransaction',
+	  label: 'Average Transaction',
 	  section: 'snapshot',
 	  description: 'Your average transaction cost across all transactions',
 	  defaultSpan: 1,
@@ -316,7 +316,7 @@ render: function(data){
 }
   },
   savingsRate: {
-	  label: 'savingsRate',
+	  label: 'Savings Rate',
 	  section: 'snapshot',
 	  description: 'Percent of income you kept this month',
 	  defaultSpan: 1,
@@ -353,7 +353,7 @@ render: function(data){
 }
   }, 
   transactionCount: {
-	  label: 'transactionCount',
+	  label: 'Transaction Count',
 	  section: 'snapshot',
 	  description: 'Amount of transactions this month',
 	  defaultSpan: 1,
