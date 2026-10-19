@@ -379,6 +379,64 @@ render: function(data){
 			<p style="font-family:var(--font-mono); font-size:22px; font-weight:500;margin:0;">${value}</p>
   `;  
 	  }
+  },
+  mostFrequentCategory: {
+	  label: 'Most frequent category',
+	  section: 'categoryInsights',
+	  description: 'Most frequent category used on transactions',
+	  defaultSpan: 1,
+	  calculate: function(transactions, categories, config){
+		 const currDate = getDate('current');
+		const filteredTransactions = transactions.filter(function(transaction){
+			return transaction.date.startsWith(currDate);
+		});
+		
+		const transactionFiltered = filteredTransactions.reduce(function(acc, curr){
+			if(!acc[curr.category_id]){
+					acc[curr.category_id] = 0;
+			}
+			acc[curr.category_id]++;
+			return acc;
+		},{})
+		
+		if (Object.entries(transactionFiltered).length === 0) {
+			return { name: 'No transactions yet', color: 'var(--ink-soft)', count: 0 };
+		}
+		
+		const [maxCategory, maxValue] = Object.entries(transactionFiltered).reduce(function(max,current){
+			return current[1] > max[1] ? current : max;
+		});
+		
+		
+		
+		const matchingCategory = categories.find(function(category){
+			return category.id === Number(maxCategory);
+		})
+		return { name : matchingCategory?.name ?? 'Uncategorized' , color : matchingCategory?.color ?? 'var(--accent)', count: maxValue};
+	  },
+	  render: function(data){
+		  const word = data.count === 1 ? 'transaction' : 'transactions';
+		  
+		  if(data.count === 0){
+			  return `
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+      <i class="ti ti-repeat" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+      <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Most frequent category</p>
+    </div>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0;">No transactions this month</p>
+  `;
+		  }
+		return `
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i class="ti ti-repeat" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+        <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">Most frequent category</p>
+    </div>
+    <span style="display:inline-block; background:${data.color}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; margin:0 0 8px;">${data.name}</span>
+    <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">
+	${data.count} <span style="font-family:var(--font-body); font-size:13px; font-weight:400; color:var(--ink-soft);">${word}</span>
+	</p>
+    `;
+	  }
   }
   
   // more widget types go here
