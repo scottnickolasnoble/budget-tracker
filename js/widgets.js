@@ -10,6 +10,128 @@ function getDate(condition){
   return `${prevYear}-${String(prevMonth).padStart(2, '0')}`;
 }
 
+function escapeHTML(text) {
+  return String(text)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+// 1234.5 -> "$1,234.50". Always positive; widgets add their own +/- sign.
+function formatMoney(amount) {
+  return '$' + Math.abs(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+// shiftMonth("2026-10", -1) -> "2026-09". Handles year changes:
+// shiftMonth("2026-01", -1) -> "2025-12".
+function shiftMonth(month, offset) {
+  const [year, m] = month.split('-').map(Number);
+  const date = new Date(year, m - 1 + offset, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// monthName("2026-10", "short") -> "Oct"   |   "long" -> "October"
+function monthName(month, style) {
+  const [year, m] = month.split('-').map(Number);
+  return new Date(year, m - 1, 1).toLocaleDateString('en-US', { month: style });
+}
+
+// "2026-10-19" -> "Oct 19". Built from parts so it never shifts a day
+// because of time zones.
+function shortDate(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+// Reads a CSS variable's real value. Chart.js needs actual colors like
+// "#A34A3C", not "var(--negative)".
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// Income and expense totals for one month.
+function totalsForMonth(transactions, month) {
+  return transactions.reduce(function(totals, t) {
+    if (!t.date.startsWith(month)) {
+      return totals;
+    }
+    const amount = Number(t.amount);
+    if (amount > 0) {
+      totals.income += amount;
+    } else {
+      totals.expense += Math.abs(amount);
+    }
+    return totals;
+  }, { income: 0, expense: 0 });
+}
+
+// Spending per category for one month: { "3": 340.5, "7": 120 }
+function spendingByCategory(transactions, month) {
+  return transactions.reduce(function(totals, t) {
+    const amount = Number(t.amount);
+    if (!t.date.startsWith(month) || amount >= 0) {
+      return totals;
+    }
+    totals[t.category_id] = (totals[t.category_id] ?? 0) + Math.abs(amount);
+    return totals;
+  }, {});
+}
+
+// Finds a category by id. Number() because object keys are always strings.
+function findCategory(categories, id) {
+  return categories.find(function(category) {
+    return category.id === Number(id);
+  });
+}
+
+// The icon + uppercase label row every widget starts with.
+function widgetLabel(icon, text) {
+  return `
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+      <i class="ti ${icon}" style="font-size:15px; color:var(--ink-soft);" aria-hidden="true"></i>
+      <p style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft); margin:0;">${text}</p>
+    </div>
+  `;
+}
+
+// Colored category pill, same style as Top category.
+function tagPill(name, color) {
+  return `<span style="display:inline-block; background:${escapeHTML(color)}; color:white; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; white-space:nowrap;">${escapeHTML(name)}</span>`;
+}
+
+// Soft grey message for empty states.
+function emptyMessage(text) {
+  return `<p style="font-size:14px; color:var(--ink-soft); margin:0;">${text}</p>`;
+}
+
+// "↑ 12.4% vs September" with the right color.
+// upIsGood = true for income (more is good), false for spending.
+function changeBadge(current, previous, upIsGood) {
+  if (previous === 0) {
+    return `<p style="font-size:13px; color:var(--ink-soft); margin:6px 0 0;">Nothing to compare from last month</p>`;
+  }
+  const change = ((current - previous) / previous) * 100;
+  const isUp = change >= 0;
+  let color = 'var(--ink-soft)';
+  if (change !== 0) {
+    color = (isUp === upIsGood) ? 'var(--positive)' : 'var(--negative)';
+  }
+  const icon = isUp ? 'ti-arrow-up-right' : 'ti-arrow-down-right';
+  return `
+    <p style="display:flex; align-items:center; gap:4px; font-size:13px; font-weight:600; color:${color}; margin:6px 0 0;">
+      <i class="ti ${icon}" aria-hidden="true"></i>${Math.abs(change).toFixed(1)}% vs ${monthName(getDate('previous'), 'long')}
+    </p>
+  `;
+}
+
 const widgetCatalog = {
   cashBalance: {
     label: 'Cash balance',
@@ -437,49 +559,533 @@ render: function(data){
 	</p>
     `;
 	  }
-  }
+  },
+  limitsAtRisk: {
+    label: 'Limits at risk',
+    section: 'categoryInsights',
+    description: 'Categories over budget or close to their limit',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const spending = spendingByCategory(transactions, getDate('current'));
+      const limited = categories.filter(function(category) {
+        return category.limit !== null && category.limit !== '' && Number(category.limit) > 0;
+      });
+      const atRisk = limited
+        .map(function(category) {
+          const spent = spending[category.id] ?? 0;
+          const limit = Number(category.limit);
+          return { name: category.name, color: category.color, spent, limit, ratio: spent / limit };
+        })
+        .filter(function(item) { return item.ratio >= 0.8; })
+        .sort(function(a, b) { return b.ratio - a.ratio; });
+      return { atRisk, hasLimits: limited.length > 0 };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-alert-triangle', 'Limits at risk');
+      if (!data.hasLimits) {
+        return label + emptyMessage('Set limits on the Categories page to track them here');
+      }
+      if (data.atRisk.length === 0) {
+        return label + `
+          <p style="display:flex; align-items:center; gap:6px; font-size:14px; font-weight:500; color:var(--positive); margin:0;">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>All categories are on track
+          </p>
+        `;
+      }
+      const overCount = data.atRisk.filter(function(item) { return item.ratio > 1; }).length;
+      const nearCount = data.atRisk.length - overCount;
+      const rows = data.atRisk.slice(0, 4).map(function(item) {
+        const isOver = item.ratio > 1;
+        const detail = isOver
+          ? `Over by ${formatMoney(item.spent - item.limit)}`
+          : `${formatMoney(item.limit - item.spent)} left`;
+        const color = isOver ? 'var(--negative)' : 'var(--accent-ink)';
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0; border-top:1px solid var(--line);">
+            ${tagPill(item.name, item.color)}
+            <span style="font-size:13px; font-weight:600; color:${color}; white-space:nowrap;">${detail}</span>
+          </div>
+        `;
+      }).join('');
+      return label + `
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 8px;">${overCount} over budget · ${nearCount} close to limit</p>
+        ${rows}
+      `;
+    }
+  },
+
+  topThreeCategories: {
+    label: 'Top 3 categories',
+    section: 'categoryInsights',
+    description: 'Your three biggest spending categories this month',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const spending = spendingByCategory(transactions, getDate('current'));
+      const top = Object.entries(spending)
+        .sort(function(a, b) { return b[1] - a[1]; })
+        .slice(0, 3)
+        .map(function(entry) {
+          const category = findCategory(categories, entry[0]);
+          return {
+            name: category?.name ?? 'Uncategorized',
+            color: category?.color ?? 'var(--accent)',
+            amount: entry[1]
+          };
+        });
+      return { top };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-trophy', 'Top 3 categories');
+      if (data.top.length === 0) {
+        return label + emptyMessage('No spending this month');
+      }
+      const largest = data.top[0].amount;
+      const rows = data.top.map(function(item, index) {
+        const width = (item.amount / largest) * 100;
+        return `
+          <div style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <span style="font-size:12px; font-weight:600; color:var(--ink-soft);">${index + 1}</span>
+                ${tagPill(item.name, item.color)}
+              </span>
+              <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; color:var(--ink);">${formatMoney(item.amount)}</span>
+            </div>
+            <div style="height:6px; background:var(--paper); border-radius:4px; overflow:hidden;">
+              <div style="width:${width}%; height:100%; background:${escapeHTML(item.color)};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      return label + rows;
+    }
+  },
+
+  categorySpotlight: {
+    label: 'Category spotlight',
+    section: 'categoryInsights',
+    description: 'A closer look at one category you choose',
+    defaultSpan: 1,
+    calculate: function(transactions, categories, config) {
+      if (config?.categoryId === undefined) {
+        return { configured: false };
+      }
+      const category = findCategory(categories, config.categoryId);
+      if (!category) {
+        return { configured: false };
+      }
+      const month = getDate('current');
+      const matches = transactions.filter(function(t) {
+        return t.category_id === category.id && t.date.startsWith(month) && Number(t.amount) < 0;
+      });
+      const spent = matches.reduce(function(sum, t) {
+        return sum + Math.abs(Number(t.amount));
+      }, 0);
+      const hasLimit = category.limit !== null && category.limit !== '';
+      return {
+        configured: true,
+        name: category.name,
+        color: category.color,
+        spent,
+        count: matches.length,
+        average: matches.length === 0 ? 0 : spent / matches.length,
+        limit: hasLimit ? Number(category.limit) : null
+      };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-zoom-in', 'Category spotlight');
+      if (!data.configured) {
+        return label + emptyMessage('Choose Edit widgets, then select this card to pick a category');
+      }
+      const word = data.count === 1 ? 'transaction' : 'transactions';
+      const limitLine = data.limit === null
+        ? ''
+        : `<p style="font-size:12px; color:var(--ink-soft); margin:4px 0 0;">of ${formatMoney(data.limit)} limit</p>`;
+      return label + `
+        <div style="margin-bottom:8px;">${tagPill(data.name, data.color)}</div>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">${formatMoney(data.spent)}</p>
+        ${limitLine}
+        <p style="font-size:12px; color:var(--ink-soft); margin:6px 0 0;">${data.count} ${word} · avg ${formatMoney(data.average)}</p>
+      `;
+    },
+    renderConfig: function(currentConfig, categories) {
+      const options = categories.map(function(category) {
+        const selected = currentConfig?.categoryId === category.id ? ' selected' : '';
+        return `<option value="${category.id}"${selected}>${escapeHTML(category.name)}</option>`;
+      }).join('');
+      return `
+        <div class="field">
+          <label for="spotlight-category">Category to spotlight</label>
+          <select id="spotlight-category">
+            <option value="">Choose a category</option>
+            ${options}
+          </select>
+        </div>
+      `;
+    }
+  },
+
+  biggestCategoryChange: {
+    label: 'Biggest category change',
+    section: 'categoryInsights',
+    description: 'The category whose spending changed most since last month',
+    defaultSpan: 1,
+    calculate: function(transactions, categories, config) {
+      const current = spendingByCategory(transactions, getDate('current'));
+      const previous = spendingByCategory(transactions, getDate('previous'));
+      const ids = new Set([...Object.keys(current), ...Object.keys(previous)]);
+
+      let biggest = null;
+      ids.forEach(function(id) {
+        const now = current[id] ?? 0;
+        const before = previous[id] ?? 0;
+        const difference = now - before;
+        if (biggest === null || Math.abs(difference) > Math.abs(biggest.difference)) {
+          biggest = { id, now, before, difference };
+        }
+      });
+
+      if (biggest === null || biggest.difference === 0) {
+        return { hasChange: false };
+      }
+      const category = findCategory(categories, biggest.id);
+      return {
+        hasChange: true,
+        name: category?.name ?? 'Uncategorized',
+        color: category?.color ?? 'var(--accent)',
+        now: biggest.now,
+        before: biggest.before,
+        difference: biggest.difference
+      };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-arrows-up-down', 'Biggest category change');
+      if (!data.hasChange) {
+        return label + emptyMessage('No change from last month');
+      }
+      const isUp = data.difference > 0;
+      const color = isUp ? 'var(--negative)' : 'var(--positive)';
+      const sign = isUp ? '+' : '-';
+      const comparison = data.before === 0
+        ? 'New this month'
+        : `${formatMoney(data.now)} vs ${formatMoney(data.before)} in ${monthName(getDate('previous'), 'short')}`;
+      return label + `
+        <div style="margin-bottom:8px;">${tagPill(data.name, data.color)}</div>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:${color}; margin:0;">${sign}${formatMoney(data.difference)}</p>
+        <p style="font-size:12px; color:var(--ink-soft); margin:6px 0 0;">${comparison}</p>
+      `;
+    }
+  },
+
+  recentTransactions: {
+    label: 'Recent transactions',
+    section: 'trends',
+    description: 'Your five most recent transactions',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const month = getDate('current');
+      // filter() makes a new array, so sorting it here doesn't reorder
+      // your main transactions list.
+      const recent = transactions
+        .filter(function(t) { return t.date.startsWith(month); })
+        .sort(function(a, b) {
+          if (a.date !== b.date) {
+            return a.date > b.date ? -1 : 1;
+          }
+          return b.id - a.id;
+        })
+        .slice(0, 5)
+        .map(function(t) {
+          const category = findCategory(categories, t.category_id);
+          return {
+            date: t.date,
+            description: t.description,
+            amount: Number(t.amount),
+            categoryName: category?.name ?? 'Uncategorized',
+            categoryColor: category?.color ?? 'var(--accent)'
+          };
+        });
+      return { recent };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-clock', 'Recent transactions');
+      if (data.recent.length === 0) {
+        return label + emptyMessage('No transactions this month');
+      }
+      const rows = data.recent.map(function(t) {
+        const isIncome = t.amount > 0;
+        return `
+          <div style="display:grid; grid-template-columns:52px minmax(0,1fr) auto; align-items:center; gap:10px; padding:7px 0; border-top:1px solid var(--line);">
+            <span style="font-size:12px; color:var(--ink-soft);">${shortDate(t.date)}</span>
+            <span style="min-width:0;">
+              <span style="display:block; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(t.description)}</span>
+              <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft);">
+                <span style="width:7px; height:7px; border-radius:50%; background:${escapeHTML(t.categoryColor)};"></span>${escapeHTML(t.categoryName)}
+              </span>
+            </span>
+            <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; color:${isIncome ? 'var(--positive)' : 'var(--negative)'};">${isIncome ? '+' : '-'}${formatMoney(t.amount)}</span>
+          </div>
+        `;
+      }).join('');
+      return label + rows;
+    }
+  },
+
+  spendingVsLastMonth: {
+    label: 'Spending vs last month',
+    section: 'trends',
+    description: "How this month's spending compares to last month",
+    defaultSpan: 1,
+    calculate: function(transactions, categories, config) {
+      return {
+        current: totalsForMonth(transactions, getDate('current')).expense,
+        previous: totalsForMonth(transactions, getDate('previous')).expense
+      };
+    },
+    render: function(data) {
+      return widgetLabel('ti-trending-up', 'Spending vs last month') + `
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--ink); margin:0;">${formatMoney(data.current)}</p>
+        ${changeBadge(data.current, data.previous, false)}
+        <p style="font-size:12px; color:var(--ink-soft); margin:4px 0 0;">${monthName(getDate('previous'), 'long')}: ${formatMoney(data.previous)}</p>
+      `;
+    }
+  },
+
+  incomeVsLastMonth: {
+    label: 'Income vs last month',
+    section: 'trends',
+    description: "How this month's income compares to last month",
+    defaultSpan: 1,
+    calculate: function(transactions, categories, config) {
+      return {
+        current: totalsForMonth(transactions, getDate('current')).income,
+        previous: totalsForMonth(transactions, getDate('previous')).income
+      };
+    },
+    render: function(data) {
+      return widgetLabel('ti-cash', 'Income vs last month') + `
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:var(--positive); margin:0;">${formatMoney(data.current)}</p>
+        ${changeBadge(data.current, data.previous, true)}
+        <p style="font-size:12px; color:var(--ink-soft); margin:4px 0 0;">${monthName(getDate('previous'), 'long')}: ${formatMoney(data.previous)}</p>
+      `;
+    }
+  },
+
+  spendingByWeekday: {
+    label: 'Spending by day of week',
+    section: 'trends',
+    description: 'Which days of the week you spend the most',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const month = getDate('current');
+      const totals = [0, 0, 0, 0, 0, 0, 0]; // Sunday through Saturday
+      transactions.forEach(function(t) {
+        const amount = Number(t.amount);
+        if (!t.date.startsWith(month) || amount >= 0) {
+          return;
+        }
+        const [year, m, day] = t.date.split('-').map(Number);
+        const weekday = new Date(year, m - 1, day).getDay();
+        totals[weekday] += Math.abs(amount);
+      });
+      const max = Math.max(...totals);
+      return { totals, max, topDay: totals.indexOf(max) };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-calendar-week', 'Spending by day of week');
+      if (data.max === 0) {
+        return label + emptyMessage('No spending this month');
+      }
+      const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const fullNames = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
+      const bars = data.totals.map(function(total, index) {
+        const height = Math.max((total / data.max) * 100, 3);
+        const isTop = index === data.topDay;
+        return `
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;" title="${names[index]}: ${formatMoney(total)}">
+            <div style="width:100%; max-width:28px; height:70px; display:flex; align-items:flex-end;">
+              <div style="width:100%; height:${height}%; border-radius:4px 4px 0 0; background:${isTop ? 'var(--accent)' : 'var(--line)'};"></div>
+            </div>
+            <span style="font-size:11px; color:${isTop ? 'var(--ink)' : 'var(--ink-soft)'}; font-weight:${isTop ? 600 : 400};">${names[index]}</span>
+          </div>
+        `;
+      }).join('');
+      return label + `
+        <p style="font-size:14px; color:var(--ink); margin:0 0 10px;">You spend most on <strong>${fullNames[data.topDay]}</strong>, ${formatMoney(data.max)} this month</p>
+        <div style="display:flex; justify-content:space-between; gap:6px;">${bars}</div>
+      `;
+    }
+  },
+
+  yearToDate: {
+    label: 'Year to date',
+    section: 'trends',
+    description: 'Income, expenses, and net since January',
+    defaultSpan: 1,
+    calculate: function(transactions, categories, config) {
+      const month = getDate('current');
+      const year = month.slice(0, 4);
+      const totals = transactions.reduce(function(sum, t) {
+        // Same year, and not after the selected month
+        if (!t.date.startsWith(year) || t.date.slice(0, 7) > month) {
+          return sum;
+        }
+        const amount = Number(t.amount);
+        if (amount > 0) {
+          sum.income += amount;
+        } else {
+          sum.expense += Math.abs(amount);
+        }
+        return sum;
+      }, { income: 0, expense: 0 });
+      return {
+        year,
+        income: totals.income,
+        expense: totals.expense,
+        net: totals.income - totals.expense
+      };
+    },
+    render: function(data) {
+      const netColor = data.net >= 0 ? 'var(--positive)' : 'var(--negative)';
+      const netSign = data.net >= 0 ? '+' : '-';
+      return widgetLabel('ti-calendar-stats', `${data.year} to date`) + `
+        <p style="font-size:11px; color:var(--ink-soft); margin:0 0 2px;">Net</p>
+        <p style="font-family:var(--font-mono); font-size:22px; font-weight:500; color:${netColor}; margin:0 0 8px;">${netSign}${formatMoney(data.net)}</p>
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span style="color:var(--ink-soft);">Income</span>
+          <span style="font-family:var(--font-mono); color:var(--positive);">${formatMoney(data.income)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:2px;">
+          <span style="color:var(--ink-soft);">Expenses</span>
+          <span style="font-family:var(--font-mono); color:var(--negative);">${formatMoney(data.expense)}</span>
+        </div>
+      `;
+    }
+  },
+
+  sixMonthTrend: {
+    label: '6-month trend',
+    section: 'trends',
+    description: 'Income and spending over the last six months',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const end = getDate('current');
+      const months = [-5, -4, -3, -2, -1, 0].map(function(offset) {
+        return shiftMonth(end, offset);
+      });
+      return {
+        labels: months.map(function(month) { return monthName(month, 'short'); }),
+        spending: months.map(function(month) { return totalsForMonth(transactions, month).expense; }),
+        income: months.map(function(month) { return totalsForMonth(transactions, month).income; })
+      };
+    },
+    render: function(data) {
+      return widgetLabel('ti-chart-line', '6-month trend') + `
+        <div style="position:relative; height:170px;">
+          <canvas role="img" aria-label="Line chart of income and spending over the last six months"></canvas>
+        </div>
+      `;
+    },
+    // Runs AFTER the widget is on the page, because Chart.js needs a real
+    // <canvas> that already exists. See PART 3.
+    afterRender: function(element, data) {
+      const canvas = element.querySelector('canvas');
+      const chart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'Spending',
+              data: data.spending,
+              borderColor: cssVar('--negative'),
+              backgroundColor: cssVar('--negative'),
+              tension: 0.3,
+              pointRadius: 3
+            },
+            {
+              label: 'Income',
+              data: data.income,
+              borderColor: cssVar('--positive'),
+              backgroundColor: cssVar('--positive'),
+              tension: 0.3,
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatMoney(context.parsed.y);
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) { return '$' + Number(value).toLocaleString(); }
+              }
+            }
+          }
+        }
+      });
+      widgetCharts.push(chart);
+    }
   
   // more widget types go here
+}
 };
 
+let widgetCharts = [];
+
 function renderAllWidgets(userWidgets, isEditMode){
-	const container = document.getElementById('widgets-container');
-	container.innerHTML = '';
-	for(const widget of userWidgets){
-		if(widgetCatalog[widget.type]){
-			const data = widgetCatalog[widget.type].calculate(transactions, categories, widget.config);
-			const html = widgetCatalog[widget.type].render(data);
-			const widgetElement = document.createElement('div');
-			widgetElement.className = 'card widget-card' + (isEditMode ? ' jiggle-card' : '');
-			widgetElement.innerHTML = html;
-			widgetElement.dataset.widgetId = widget.id;
-			widgetElement.style.gridColumn = 'span ' + widget.span;
-			if (isEditMode){
-				widgetElement.innerHTML += `<button class="widget-remove-btn" data-widget-id="${widget.id}">x</button>`;
-			}
-			container.appendChild(widgetElement);
-		}
-	}
+  // NEW: destroy old charts before redrawing. Without this, every month
+  // change or edit-mode toggle would leave old charts running in memory.
+  widgetCharts.forEach(function(chart) { chart.destroy(); });
+  widgetCharts = [];
 
-	if (isEditMode) {
-		const addCard = document.createElement('div');
-		addCard.id = 'add-widget-card';
-		addCard.className = 'card widget-add-card';
-		addCard.textContent = '+ Add widget';
-		container.appendChild(addCard);
-	}
-}
+  const container = document.getElementById('widgets-container');
+  container.innerHTML = '';
 
-function updateConfigSection() {
-  const selectedType = document.getElementById('widget-config-type').value;
-  const configContainer = document.getElementById('widget-config-typespecific');
-  const catalogEntry = widgetCatalog[selectedType];
+  for (const widget of userWidgets){
+    const entry = widgetCatalog[widget.type];
+    if (!entry) {
+      continue;
+    }
 
-  if (catalogEntry.renderConfig) {
-    const currentConfig = (currentlyEditingWidget.type === selectedType) ? currentlyEditingWidget.config : {};
-    configContainer.innerHTML = catalogEntry.renderConfig(currentConfig, categories);
-  } else {
-    configContainer.innerHTML = '';
+    const data = entry.calculate(transactions, categories, widget.config ?? {});
+    const widgetElement = document.createElement('div');
+    widgetElement.className = 'card widget-card' + (isEditMode ? ' jiggle-card' : '');
+    widgetElement.innerHTML = entry.render(data);
+    widgetElement.dataset.widgetId = widget.id;
+    widgetElement.style.gridColumn = 'span ' + widget.span;
+
+    if (isEditMode){
+      widgetElement.innerHTML += `<button class="widget-remove-btn" data-widget-id="${widget.id}">x</button>`;
+    }
+
+    container.appendChild(widgetElement);
+
+    // NEW: let widgets like the 6-month trend draw after they're on the page.
+    if (entry.afterRender) {
+      entry.afterRender(widgetElement, data);
+    }
+  }
+
+  if (isEditMode) {
+    const addCard = document.createElement('div');
+    addCard.id = 'add-widget-card';
+    addCard.className = 'card widget-add-card';
+    addCard.textContent = '+ Add widget';
+    container.appendChild(addCard);
   }
 }
+
+
 

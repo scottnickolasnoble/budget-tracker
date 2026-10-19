@@ -343,7 +343,10 @@ function collectConfig(selectedType){
 		});
 		return { excludedCategoryIds };
 	}
-	
+	if (selectedType === 'categorySpotlight') {
+    const value = document.getElementById('spotlight-category').value;
+    return value === '' ? {} : { categoryId: Number(value) };
+  }
 	return {};
 }
 
