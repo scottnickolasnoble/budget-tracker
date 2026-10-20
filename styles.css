@@ -2466,3 +2466,67 @@ button.cal-sq { cursor: pointer; }
   .card { box-shadow: none !important; border: 1px solid #D8D6CC; break-inside: avoid; }
   .rp-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+
+/* Phone tab bar: icon on top, small label underneath */
+@media (max-width: 768px) {
+  .ledger-tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0;
+    width: auto;
+    padding: 6px 2px calc(6px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-right: none;
+    overflow: visible;
+  }
+
+  .ledger-tabs .brand,
+  .ledger-tabs .nav-logout {
+    display: none;
+  }
+
+  .ledger-tabs a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 4px 0;
+    font-size: 10px;
+    line-height: 1.1;
+    color: var(--ink-soft);
+    text-decoration: none;
+    background: none;
+  }
+
+  .ledger-tabs a span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ledger-tabs a i {
+    font-size: 22px;
+  }
+
+  .ledger-tabs a.active {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* Keep the bottom of each page from hiding behind the bar */
+  .main-content {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+}
