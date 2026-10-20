@@ -56,6 +56,15 @@ app.use('/api/accounts', accountsRouter);
 const billsRouter = require('./routes/bills');      // ← new
 app.use('/api/bills', billsRouter);                 // ← new
 
+const wishlistRouter = require('./routes/wishlist');
+app.use('/api/wishlist', wishlistRouter);
+const paychequeRouter = require('./routes/paycheque');
+app.use('/api/paycheque', paychequeRouter);
+const keyListRouter = require('./routes/keyList');
+app.use('/api/subscription-ignores', keyListRouter('subscription_ignores'));
+app.use('/api/insight-dismissals', keyListRouter('insight_dismissals'));
+
+
 app.listen(3000, function() {
 	console.log('Server running on http://localhost:3000');
 });

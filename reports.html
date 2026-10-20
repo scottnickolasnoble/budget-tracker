@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ledger — Reports</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,6 +42,7 @@
           <button type="button" role="tab" id="tab-report" aria-controls="rp-report" aria-selected="true" data-tab="report">Monthly report</button>
           <button type="button" role="tab" id="tab-networth" aria-controls="rp-networth" aria-selected="false" data-tab="networth">Net worth</button>
           <button type="button" role="tab" id="tab-calendar" aria-controls="rp-calendar" aria-selected="false" data-tab="calendar">Calendar</button>
+          <button type="button" role="tab" id="tab-trends" aria-controls="rp-trends" aria-selected="false" data-tab="trends">Trends</button>
         </div>
         <label class="nw-check" id="cal-fixed-wrap" hidden>
           <input type="checkbox" id="cal-hide-fixed" checked />
@@ -219,6 +220,53 @@
 
             <aside class="rp-side">
               <div class="card" id="cal-day"></div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Category trends ================= -->
+      <section id="rp-trends" role="tabpanel" aria-labelledby="tab-trends" hidden>
+
+        <div id="tr-empty" class="card" hidden>
+          <p class="text-soft" style="margin:0;">No spending logged yet. Trends show up once you have a few months of transactions.</p>
+        </div>
+
+        <div id="tr-body">
+          <div class="tr-head mb-4">
+            <div>
+              <p class="text-soft rp-small" style="margin:0 0 4px;">Category trends · last 12 months</p>
+              <h1 class="tr-title" id="tr-title"></h1>
+            </div>
+            <div class="field tr-picker">
+              <label for="tr-category">Category</label>
+              <select id="tr-category"></select>
+            </div>
+          </div>
+
+          <p class="card tr-insight mb-4" id="tr-insight"></p>
+
+          <div class="rp-kpis mb-4" id="tr-stats"></div>
+
+          <div class="card mb-4">
+            <div class="rp-card-head">
+              <h2 class="rp-card-title">Month by month</h2>
+              <div class="tr-legend" id="tr-legend"></div>
+            </div>
+            <div class="tr-chart" id="tr-chart" role="img"></div>
+            <div class="tr-months" id="tr-months" aria-hidden="true"></div>
+          </div>
+
+          <div class="rp-layout">
+            <div class="card rp-main">
+              <h2 class="rp-card-title">Where you spend it</h2>
+              <div id="tr-places"></div>
+            </div>
+            <aside class="rp-side">
+              <div class="card">
+                <h2 class="rp-card-title">Biggest purchases</h2>
+                <div id="tr-biggest"></div>
+              </div>
             </aside>
           </div>
         </div>

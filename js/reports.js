@@ -1067,11 +1067,218 @@ document.getElementById('cal-hide-fixed').addEventListener('change', function() 
   renderCalendar();
 });
 
+// ======================= category trends =======================
+
+let trCategory = null; // category id being shown
+
+// [{ month, total }] for the last 12 months (this month last, partly done)
+function trSeries(categoryId) {
+  const thisMonth = todayString().slice(0, 7);
+  const series = [];
+  for (let i = 11; i >= 0; i--) {
+    series.push({ month: shiftMonth(thisMonth, -i), total: 0 });
+  }
+  const index = {};
+  series.forEach(function(s) { index[s.month] = s; });
+  transactions.forEach(function(t) {
+    if (t.category_id !== categoryId || !isSpending(t)) return;
+    const bucket = index[t.date.slice(0, 7)];
+    if (bucket) bucket.total += Math.abs(Number(t.amount));
+  });
+  return series;
+}
+
+// Categories that had any spending in the last 12 months, biggest first
+function trCategories() {
+  const start = shiftMonth(todayString().slice(0, 7), -11) + '-01';
+  const totals = {};
+  transactions.forEach(function(t) {
+    if (t.date >= start && isSpending(t)) {
+      totals[t.category_id] = (totals[t.category_id] ?? 0) + Math.abs(Number(t.amount));
+    }
+  });
+  // Everyday categories first (biggest first), then bill and loan categories,
+  // so the page doesn't open on something fixed like the mortgage.
+  const fixed = function(id) {
+    return bills.some(function(b) { return b.category_id === id; })
+      || accounts.some(function(a) { return a.category_id === id; });
+  };
+  return Object.keys(totals)
+    .map(function(id) { return { id: Number(id), total: totals[id], category: findCategory(id), fixed: fixed(Number(id)) }; })
+    .filter(function(c) { return c.category; })
+    .sort(function(a, b) { return (a.fixed - b.fixed) || (b.total - a.total); });
+}
+
+// One or two plain-English sentences about the category
+function trSentence(name, full, limit, pace) {
+  const avg = full.reduce(function(s, m) { return s + m.total; }, 0) / full.length;
+  const parts = [];
+
+  if (full.length >= 6) {
+    const before = full.slice(-6, -3).reduce(function(s, m) { return s + m.total; }, 0) / 3;
+    const recent = full.slice(-3).reduce(function(s, m) { return s + m.total; }, 0) / 3;
+    const change = before > 0 ? (recent / before - 1) * 100 : 0;
+    if (before > 0 && Math.abs(change) >= 10) {
+      parts.push(`${name} is ${change > 0 ? 'up' : 'down'} about ${Math.round(Math.abs(change))}% lately: ${formatMoney(recent)} a month over the last 3 months, vs ${formatMoney(before)} in the 3 before.`);
+    } else {
+      parts.push(`${name} is steady at about ${formatMoney(avg)} a month.`);
+    }
+  }
+
+  if (limit > 0) {
+    const over = full.filter(function(m) { return m.total > limit; });
+    parts.push(over.length === 0
+      ? `You stayed under your ${formatMoney(limit)} limit every month.`
+      : `You went over your ${formatMoney(limit)} limit in ${over.length} of ${full.length} months (${over.map(function(m) { return monthName(m.month, 'short'); }).join(', ')}).`);
+  }
+
+  if (pace !== null) {
+    parts.push(`This month is on pace for about ${formatMoney(pace)}.`);
+  }
+  return parts.join(' ');
+}
+
+function renderTrends() {
+  const options = trCategories();
+  document.getElementById('tr-empty').hidden = options.length > 0;
+  document.getElementById('tr-body').hidden = options.length === 0;
+  if (options.length === 0) {
+    return;
+  }
+
+  if (!options.some(function(o) { return o.id === trCategory; })) {
+    trCategory = options[0].id;
+  }
+  const select = document.getElementById('tr-category');
+  select.innerHTML = options.map(function(o) {
+    return `<option value="${o.id}"${o.id === trCategory ? ' selected' : ''}>${escapeHTML(o.category.name)}</option>`;
+  }).join('');
+
+  const category = findCategory(trCategory);
+  const series = trSeries(trCategory);
+  const today = todayString();
+  const current = series[series.length - 1];
+  // Only months with data count as "full" (don't average in months before you started)
+  const firstData = transactions.map(function(t) { return t.date.slice(0, 7); }).sort()[0] ?? current.month;
+  const full = series.slice(0, -1).filter(function(m) { return m.month >= firstData; });
+  const limit = hasLimit(category) ? Number(category.limit) : 0;
+  const day = Number(today.slice(8));
+  const daysInMonth = Number(monthEnd(current.month).slice(8));
+  const pace = day >= 3 ? (current.total / day) * daysInMonth : null;
+
+  document.getElementById('tr-title').innerHTML =
+    `<span class="sl-dot" style="width:14px;height:14px;background:${escapeHTML(category.color)};"></span>${escapeHTML(category.name)}`;
+
+  // Sentence + stats
+  document.getElementById('tr-insight').textContent = full.length
+    ? trSentence(category.name, full, limit, pace)
+    : `Not enough history yet. This month so far: ${formatMoney(current.total)}.`;
+
+  const avg = full.length ? full.reduce(function(s, m) { return s + m.total; }, 0) / full.length : 0;
+  const high = full.length ? full.reduce(function(a, b) { return b.total > a.total ? b : a; }) : null;
+  const low = full.length ? full.reduce(function(a, b) { return b.total < a.total ? b : a; }) : null;
+  const tiles = [
+    { label: 'Average month', value: formatMoney(avg), note: `last ${full.length} full ${full.length === 1 ? 'month' : 'months'}` },
+    { label: 'Highest', value: high ? formatMoney(high.total) : '—', note: high ? monthYear(high.month) : '' },
+    { label: 'Lowest', value: low ? formatMoney(low.total) : '—', note: low ? monthYear(low.month) : '' },
+    { label: `${monthName(current.month, 'long')} so far`, value: formatMoney(current.total), note: pace !== null ? `on pace for ${formatMoney(pace)}` : '' }
+  ];
+  document.getElementById('tr-stats').innerHTML = tiles.map(function(t) {
+    return `<div class="card"><p class="rp-stat-label">${t.label}</p><p class="rp-stat-value">${t.value}</p><p class="rp-stat-note text-soft">${t.note}</p></div>`;
+  }).join('');
+
+  // Chart: plain HTML bars, with average and limit lines on top
+  const max = Math.max(...series.map(function(m) { return m.total; }), limit, 1) * 1.12;
+  const color = escapeHTML(category.color);
+  const negative = cssVar('--negative');
+  document.getElementById('tr-chart').innerHTML = series.map(function(m, i) {
+    const isCurrent = i === series.length - 1;
+    const over = limit > 0 && m.total > limit;
+    return `
+      <div class="tr-bar-col">
+        <span class="tr-bar-label">${m.total >= 1000 ? '$' + (m.total / 1000).toFixed(1) + 'k' : '$' + Math.round(m.total)}</span>
+        <span class="tr-bar${isCurrent ? ' is-current' : ''}" style="height:${(m.total / max) * 100}%; background:${over ? negative : color};"></span>
+      </div>
+    `;
+  }).join('')
+    + (avg > 0 ? `<span class="tr-line tr-avg" style="bottom:${(avg / max) * 100}%;"></span>` : '')
+    + (limit > 0 ? `<span class="tr-line tr-limit" style="bottom:${(limit / max) * 100}%;"></span>` : '');
+  document.getElementById('tr-chart').setAttribute('aria-label',
+    `${category.name} spending by month for the last 12 months. Average ${formatMoney(avg)}.`);
+  document.getElementById('tr-months').innerHTML = series.map(function(m, i) {
+    return `<span${i === series.length - 1 ? ' class="is-current"' : ''}>${monthName(m.month, 'short')}</span>`;
+  }).join('');
+  document.getElementById('tr-legend').innerHTML =
+    '<span><span class="tr-key tr-avg"></span>Average</span>'
+    + (limit > 0 ? `<span><span class="tr-key tr-limit"></span>Limit ${formatMoney(limit)}</span>` : '');
+
+  // Where you spend it: grouped by description, top 4 + everything else
+  const start = series[0].month + '-01';
+  const inRange = transactions.filter(function(t) {
+    return t.category_id === trCategory && t.date >= start && isSpending(t);
+  });
+  const places = {};
+  inRange.forEach(function(t) {
+    const key = String(t.description).trim().toLowerCase();
+    if (!places[key]) places[key] = { name: String(t.description).trim(), total: 0 };
+    places[key].total += Math.abs(Number(t.amount));
+  });
+  let list = Object.values(places).sort(function(a, b) { return b.total - a.total; });
+  if (list.length > 5) {
+    const rest = list.slice(4).reduce(function(s, p) { return s + p.total; }, 0);
+    list = list.slice(0, 4).concat([{ name: 'Everything else', total: rest }]);
+  }
+  const grand = list.reduce(function(s, p) { return s + p.total; }, 0) || 1;
+  const top = list[0]?.total || 1;
+  document.getElementById('tr-places').innerHTML = list.map(function(p) {
+    return `
+      <div class="tr-place">
+        <div>
+          <span class="tr-place-name">${escapeHTML(p.name)}</span>
+          <div class="rp-bar"><div style="width:${(p.total / top) * 100}%; background:${color};"></div></div>
+        </div>
+        <span class="rp-mono">${formatMoney(p.total)}</span>
+        <span class="text-soft rp-small">${Math.round((p.total / grand) * 100)}%</span>
+      </div>
+    `;
+  }).join('');
+
+  // Biggest purchases
+  const biggest = inRange.slice().sort(function(a, b) { return Number(a.amount) - Number(b.amount); }).slice(0, 4);
+  document.getElementById('tr-biggest').innerHTML = biggest.map(function(t) {
+    return `
+      <div class="rp-list-row">
+        <div>
+          <p class="rp-list-name">${escapeHTML(t.description)}</p>
+          <p class="text-soft rp-small">${formatDate(t.date)}</p>
+        </div>
+        <span class="rp-mono">${formatMoney(Number(t.amount))}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatDate(dateString) {
+  return toDate(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+document.getElementById('tr-category').addEventListener('change', function() {
+  trCategory = Number(this.value);
+  history.replaceState(null, '', '#trends-' + trCategory);
+  renderTrends();
+});
+
 // ======================= tabs & events =======================
 
-const TABS = ['report', 'networth', 'calendar'];
+const TABS = ['report', 'networth', 'calendar', 'trends'];
 
 function showTab(tab) {
+  // "#trends-12" opens Trends on category 12 (used by Insights links)
+  const trendsMatch = /^trends-(\d+)$/.exec(tab);
+  if (trendsMatch) {
+    trCategory = Number(trendsMatch[1]);
+    tab = 'trends';
+  }
   if (!TABS.includes(tab)) {
     tab = 'report';
   }
@@ -1081,12 +1288,14 @@ function showTab(tab) {
   });
   document.getElementById('cal-fixed-wrap').hidden = tab !== 'calendar';
   // Remember the tab in the address, so reports.html#calendar opens it directly
-  history.replaceState(null, '', '#' + tab);
+  history.replaceState(null, '', '#' + (tab === 'trends' && trCategory ? 'trends-' + trCategory : tab));
 
   if (tab === 'networth') {
     renderNetWorth(); // Chart.js needs the canvas visible to size itself
   } else if (tab === 'calendar') {
     renderCalendar();
+  } else if (tab === 'trends') {
+    renderTrends();
   }
 }
 

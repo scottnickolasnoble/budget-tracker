@@ -1,6 +1,7 @@
 let categories = [];
 let transactions = [];
 let widgets = [];
+let dashboardInsights = [];
 let isEditMode = false;
 let currentlyEditingWidget = null;
 let categoryChart = null;
@@ -385,11 +386,33 @@ async function loadWidgets(){
 		widgets = await refreshed.json();
 	}
 }
+
+async function loadInsights() {
+  try {
+    const [bills, payments, accounts, paySettings, ignoredSubs, dismissed] = await Promise.all([
+      Ledger.getJSON('/api/bills'),
+      Ledger.getJSON('/api/bills/payments'),
+      Ledger.getJSON('/api/accounts'),
+      Ledger.getJSON('/api/paycheque'),
+      Ledger.getJSON('/api/subscription-ignores'),
+      Ledger.getJSON('/api/insight-dismissals')
+    ]);
+    const subscriptions = Ledger.detectSubscriptions(transactions, bills, accounts, Ledger.todayString());
+    dashboardInsights = Ledger.buildInsights({
+      transactions, categories, bills, payments, accounts, paySettings, subscriptions, ignoredSubs
+    }).filter(function(i) { return !dismissed.includes(i.key); });
+  } catch (error) {
+    // If anything fails, the widget just shows "all caught up"
+    console.error(error);
+    dashboardInsights = [];
+  }
+}
+
 async function init(){
 	await loadCategories();
 	await loadTransactions();
 	await loadWidgets();
-	
+	await loadInsights(); 
 	
 	renderAllWidgets(widgets, isEditMode);
 	populateWidgetTypeOptions()

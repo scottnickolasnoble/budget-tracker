@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Subscriptions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html" class="active"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <nav class="rp-tabs ledger-subnav mb-4" aria-label="Bills pages">
+        <a href="bills.html">Bills</a>
+        <a href="paycheque.html">Paycheque planner</a>
+        <a href="subscriptions.html" aria-current="page">Subscriptions</a>
+      </nav>
+
+      <div class="mb-4 page-header">
+        <h1>Subscription audit</h1>
+        <p class="text-soft">Charges that repeat in your transactions: same name, about the same amount, on a regular schedule. Big regular payments like rent and loans are left out.</p>
+      </div>
+
+      <div class="rp-kpis mb-4" id="sb-stats"></div>
+
+      <section class="mb-4" id="sb-new-section">
+        <div class="bl-group-head">
+          <h2 class="bl-negative">Found, but not a bill yet</h2>
+          <span class="text-soft">Make it a bill so Ledger tracks it, or tell Ledger it isn't a subscription</span>
+        </div>
+        <div class="mp-grid" id="sb-new"></div>
+      </section>
+
+      <section class="card rp-table-card mb-4">
+        <div class="rp-card-head">
+          <h2 class="rp-card-title">All subscriptions</h2>
+          <span class="text-soft rp-small">Sorted by yearly cost</span>
+        </div>
+        <div class="rp-table-scroll">
+          <table class="ledger-table sb-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>How often</th>
+                <th class="rp-num">Amount</th>
+                <th class="rp-num">Per year</th>
+                <th>Last charged</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="sb-table"></tbody>
+            <tfoot id="sb-table-foot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section id="sb-ignored-section" hidden>
+        <button type="button" class="card bl-paid-toggle" id="sb-ignored-toggle" aria-expanded="false"></button>
+        <div class="card bl-rows" id="sb-ignored" hidden></div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/ledger-core.js"></script>
+<script src="js/subscriptions.js"></script>
+</html>

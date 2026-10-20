@@ -1039,7 +1039,34 @@ render: function(data){
     }
   
   // more widget types go here
-}
+},
+insights: {
+    label: 'Insights',
+    section: 'snapshot',
+    description: 'The newest things Ledger noticed in your money',
+    defaultSpan: 2,
+    calculate: function(transactions, categories, config) {
+      const list = typeof dashboardInsights !== 'undefined' ? dashboardInsights : [];
+      return { items: list.slice(0, 3), total: list.length };
+    },
+    render: function(data) {
+      const label = widgetLabel('ti-bulb', 'Insights');
+      if (data.items.length === 0) {
+        return label + emptyMessage("You're all caught up.");
+      }
+      const colors = { headsup: 'var(--negative)', tip: 'var(--accent)', win: 'var(--positive)' };
+      const rows = data.items.map(function(i) {
+        return `
+          <div class="wd-insight">
+            <span class="sl-dot" style="background:${colors[i.kind]};"></span>
+            <span>${escapeHTML(i.title)}</span>
+          </div>
+        `;
+      }).join('');
+      const more = data.total > 3 ? ` (${data.total - 3} more)` : '';
+      return label + rows + `<a href="insights.html" style="font-size:13px; font-weight:500;">See all insights${more}</a>`;
+    }
+  }
 };
 
 let widgetCharts = [];

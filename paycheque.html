@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Paycheque planner</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html" class="active"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <nav class="rp-tabs ledger-subnav mb-4" aria-label="Bills pages">
+        <a href="bills.html">Bills</a>
+        <a href="paycheque.html" aria-current="page">Paycheque planner</a>
+        <a href="subscriptions.html">Subscriptions</a>
+      </nav>
+
+      <!-- First time: set up your pay -->
+      <div class="card pc-setup" id="pc-setup" hidden>
+        <h1>Plan every paycheque</h1>
+        <p class="text-soft">Tell Ledger when you get paid. Each paycheque gets split into bills due before the next one, money set aside for big bills, savings, and what's left to spend.</p>
+        <button type="button" class="btn btn-primary" id="pc-setup-btn">Set up my pay</button>
+      </div>
+
+      <div id="pc-body" hidden>
+        <div class="flex-between mb-4 page-header">
+          <div>
+            <h1>Paycheque planner</h1>
+            <p class="text-soft" id="pc-schedule"></p>
+          </div>
+          <button type="button" class="btn btn-secondary" id="pc-edit-btn">Edit pay and savings</button>
+        </div>
+
+        <section class="rp-hero pc-hero mb-4">
+          <div>
+            <p class="rp-hero-label" id="pc-period"></p>
+            <p class="pc-amount" id="pc-amount"></p>
+            <p class="pc-sub" id="pc-next"></p>
+          </div>
+          <div class="pc-hero-right">
+            <p class="pc-sub">Spending money left</p>
+            <p class="pc-left" id="pc-left"></p>
+            <p class="pc-daily" id="pc-daily"></p>
+          </div>
+        </section>
+
+        <div class="rp-layout">
+          <section class="card rp-main">
+            <div class="rp-card-head">
+              <h2 class="rp-card-title">Where this paycheque goes</h2>
+            </div>
+            <div class="pc-split" id="pc-split" role="img"></div>
+            <div id="pc-buckets"></div>
+          </section>
+
+          <aside class="rp-side">
+            <section class="card">
+              <h2 class="rp-card-title">Spending money</h2>
+              <div id="pc-tracker"></div>
+            </section>
+            <section class="card">
+              <h2 class="rp-card-title">Coming paydays</h2>
+              <div id="pc-paydays"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Pay settings -->
+  <div class="sl-modal-backdrop" id="pc-modal" hidden>
+    <form class="sl-modal" id="pc-form" novalidate aria-labelledby="pc-modal-title">
+      <h2 id="pc-modal-title">Your pay</h2>
+
+      <div class="sl-form-grid">
+        <div class="field">
+          <label for="pc-in-amount">Take-home pay</label>
+          <input type="number" id="pc-in-amount" min="0" step="0.01" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="pc-in-frequency">How often</label>
+          <select id="pc-in-frequency">
+            <option value="weekly">Every week</option>
+            <option value="biweekly" selected>Every 2 weeks</option>
+            <option value="semimonthly">15th and last day</option>
+            <option value="monthly">Once a month</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="pc-in-anchor-wrap">
+        <label for="pc-in-anchor">A recent payday</label>
+        <input type="date" id="pc-in-anchor" />
+        <p class="field-hint">Any real payday works; Ledger counts forward and back from it.</p>
+      </div>
+
+      <fieldset class="pc-plan">
+        <legend>Move to savings each payday</legend>
+        <div id="pc-in-plan"></div>
+      </fieldset>
+
+      <p class="sl-form-error" id="pc-form-error" role="alert"></p>
+
+      <div class="sl-modal-actions">
+        <span class="sl-spacer"></span>
+        <button type="button" class="btn btn-secondary" id="pc-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/ledger-core.js"></script>
+<script src="js/paycheque.js"></script>
+</html>

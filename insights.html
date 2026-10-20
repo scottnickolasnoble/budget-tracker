@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Insights</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html" class="active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <nav class="rp-tabs ledger-subnav mb-4" aria-label="Dashboard pages">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="insights.html" aria-current="page">Insights <span class="mp-badge" id="in-badge" hidden></span></a>
+      </nav>
+
+      <div class="flex-between mb-4 page-header">
+        <div>
+          <h1>Insights</h1>
+          <p class="text-soft">Things Ledger noticed in your money. Dismiss the ones you've dealt with.</p>
+        </div>
+        <div class="bl-filters" id="in-filters" role="group" aria-label="Filter insights"></div>
+      </div>
+
+      <div class="rp-layout">
+        <div class="rp-main in-feed" id="in-feed"></div>
+
+        <aside class="rp-side">
+          <section class="card">
+            <p class="rp-stat-label">On your dashboard</p>
+            <p class="text-soft rp-small" style="margin:0 0 12px;">Add the Insights widget in Edit widgets to see the newest three there.</p>
+            <div class="in-preview" id="in-preview"></div>
+          </section>
+          <section class="card" id="in-dismissed-card" hidden>
+            <h2 class="rp-card-title">Dismissed</h2>
+            <div id="in-dismissed"></div>
+          </section>
+        </aside>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/ledger-core.js"></script>
+<script src="js/insights.js"></script>
+</html>

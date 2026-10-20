@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Wishlist</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html" class="active"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <nav class="rp-tabs ledger-subnav mb-4" aria-label="Savings pages">
+        <a href="savings.html">Savings &amp; loans</a>
+        <a href="wishlist.html" aria-current="page">Wishlist</a>
+      </nav>
+
+      <div class="flex-between mb-4 page-header">
+        <div>
+          <h1>Wishlist</h1>
+          <p class="text-soft">Each item waits before it's ready to buy. If you still want it after that, go for it.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="wl-add-btn">+ Add to wishlist</button>
+      </div>
+
+      <div class="rp-kpis mb-4" id="wl-stats"></div>
+
+      <div class="bl-filters mb-4" id="wl-filters" role="group" aria-label="Filter"></div>
+
+      <div class="mp-grid" id="wl-items"></div>
+
+      <section class="mt-4" id="wl-history-section" hidden>
+        <button type="button" class="card bl-paid-toggle" id="wl-history-toggle" aria-expanded="false"></button>
+        <div class="card bl-rows" id="wl-history" hidden></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add / edit item -->
+  <div class="sl-modal-backdrop" id="wl-modal" hidden>
+    <form class="sl-modal" id="wl-form" novalidate aria-labelledby="wl-modal-title">
+      <h2 id="wl-modal-title">Add to wishlist</h2>
+
+      <div class="field">
+        <label for="wl-name">What is it?</label>
+        <input type="text" id="wl-name" maxlength="80" autocomplete="off" />
+      </div>
+
+      <div class="sl-form-grid">
+        <div class="field">
+          <label for="wl-price">Price</label>
+          <input type="number" id="wl-price" min="0" step="0.01" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="wl-priority">Need or want?</label>
+          <select id="wl-priority">
+            <option value="want">Want</option>
+            <option value="need">Need</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="wl-wait">Wait before buying</label>
+          <select id="wl-wait">
+            <option value="0">No wait</option>
+            <option value="7">1 week</option>
+            <option value="14">2 weeks</option>
+            <option value="30" selected>30 days</option>
+            <option value="60">60 days</option>
+            <option value="90">90 days</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="wl-account">Saving up in</label>
+          <select id="wl-account"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="wl-note">Note (optional)</label>
+        <input type="text" id="wl-note" maxlength="200" autocomplete="off" placeholder="Where to buy it, which model…" />
+      </div>
+
+      <p class="sl-form-error" id="wl-form-error" role="alert"></p>
+
+      <div class="sl-modal-actions">
+        <button type="button" class="btn btn-danger" id="wl-delete-btn" hidden>Delete</button>
+        <span class="sl-spacer"></span>
+        <button type="button" class="btn btn-secondary" id="wl-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/ledger-core.js"></script>
+<script src="js/wishlist.js"></script>
+</html>
