@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Debt payoff</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html" class="active"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <nav class="rp-tabs ledger-subnav mb-4" aria-label="Savings pages">
+        <a href="savings.html">Savings &amp; loans</a>
+        <a href="wishlist.html">Wishlist</a>
+        <a href="debt.html" aria-current="page">Debt payoff</a>
+      </nav>
+
+      <div class="mb-4 page-header">
+        <h1>Debt payoff planner</h1>
+        <p class="text-soft">Pay the minimum on every loan, then put everything extra on one at a time. When one is paid off, its payment rolls onto the next.</p>
+      </div>
+
+      <div id="dp-empty" class="card" hidden>
+        <p class="text-soft" style="margin:0 0 12px;">No loans yet. Add your loans and credit cards on the Savings page, each with its interest rate and monthly payment.</p>
+        <a class="btn btn-primary" href="savings.html">Go to Savings</a>
+      </div>
+
+      <div id="dp-body">
+        <div id="dp-warnings"></div>
+
+        <section class="card dp-controls mb-4">
+          <div class="dp-control">
+            <p class="dp-control-label">Which loan gets the extra money first?</p>
+            <div class="dp-strategies" role="group" aria-label="Strategy">
+              <button type="button" data-strategy="avalanche">
+                <strong>Avalanche</strong>
+                <span>Highest interest rate first. Saves the most money.</span>
+              </button>
+              <button type="button" data-strategy="snowball">
+                <strong>Snowball</strong>
+                <span>Smallest balance first. Quick wins keep you going.</span>
+              </button>
+            </div>
+          </div>
+          <div class="dp-control">
+            <label for="dp-extra" class="dp-control-label dp-extra-label">
+              <span>Extra each month, on top of minimums</span>
+              <span class="rp-mono" id="dp-extra-text"></span>
+            </label>
+            <input type="range" id="dp-extra" min="0" max="1000" step="25" />
+            <div class="dp-scale" aria-hidden="true"><span>$0</span><span>$500</span><span>$1,000</span></div>
+            <p class="text-soft rp-small" id="dp-total-payment" style="margin:0;"></p>
+          </div>
+        </section>
+
+        <div class="rp-kpis mb-4" id="dp-stats"></div>
+
+        <section class="card mb-4">
+          <div class="rp-card-head">
+            <h2 class="rp-card-title">Total debt over time</h2>
+            <div class="tr-legend">
+              <span><span class="dp-key dp-key-plan"></span>Your plan</span>
+              <span><span class="dp-key dp-key-min"></span>Minimums only</span>
+            </div>
+          </div>
+          <div class="dp-chart-wrap">
+            <div class="dp-y" id="dp-y" aria-hidden="true"></div>
+            <div class="dp-chart-col">
+              <div class="dp-chart" id="dp-chart" role="img"></div>
+              <div class="dp-x" id="dp-x" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card rp-table-card">
+          <div class="rp-card-head">
+            <h2 class="rp-card-title">Payoff order</h2>
+          </div>
+          <div class="rp-table-scroll">
+            <table class="ledger-table dp-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Loan</th>
+                  <th class="rp-num">Balance</th>
+                  <th class="rp-num">Rate</th>
+                  <th class="rp-num">Minimum</th>
+                  <th>Timeline</th>
+                  <th class="rp-num">Paid off</th>
+                </tr>
+              </thead>
+              <tbody id="dp-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/ledger-core.js"></script>
+<script src="js/debt.js"></script>
+</html>

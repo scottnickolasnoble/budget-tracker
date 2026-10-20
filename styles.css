@@ -3649,3 +3649,179 @@ button.cal-sq { cursor: pointer; }
   .card { box-shadow: none !important; border: 1px solid #D8D6CC; break-inside: avoid; }
   .rp-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+.dp-warning {
+  margin: 0 0 var(--space-3);
+  font-size: 14px;
+  background: #F6EBDD;
+  color: var(--accent-ink);
+}
+
+.dp-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.dp-control {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dp-control-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dp-extra-label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dp-extra-label .rp-mono { font-size: 16px; }
+
+.dp-strategies {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dp-strategies button {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.dp-strategies button[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: #F6F5F0;
+}
+
+.dp-strategies strong { display: block; font-size: 15px; }
+.dp-strategies span { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-soft); }
+
+#dp-extra {
+  width: 100%;
+  accent-color: var(--ink);
+}
+
+.dp-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+/* Dark "debt-free" tile */
+.dp-dark { background: var(--ink) !important; color: var(--surface); }
+.dp-dark .rp-stat-label { color: #C9CFC9; }
+.dp-dark .rp-stat-value { font-family: var(--font-display, Fraunces, serif); font-size: 26px; font-weight: 600; }
+.dp-dark .rp-stat-note { color: #C9CFC9; }
+
+/* Chart */
+.dp-key { width: 16px; height: 0; }
+.dp-key-plan { border-top: 3px solid var(--positive); }
+.dp-key-min { border-top: 2px dashed #8A8F88; }
+
+.dp-chart-wrap {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--space-3);
+}
+
+.dp-y {
+  position: relative;
+  width: 52px;
+  height: 240px;
+  flex-shrink: 0;
+}
+
+.dp-y span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.dp-chart-col { flex: 1; min-width: 0; }
+
+.dp-chart {
+  position: relative;
+  height: 240px;
+}
+
+.dp-chart svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dp-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--line);
+}
+
+.dp-x {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+/* Payoff order table */
+.dp-table { min-width: 760px; }
+
+.dp-order {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dp-timeline {
+  min-width: 140px;
+  height: 12px;
+  background: var(--paper);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dp-timeline div {
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 768px) {
+  .dp-controls { gap: var(--space-4); }
+  .dp-y { width: 40px; height: 170px; }
+  .dp-chart { height: 170px; }
+  .dp-x span:nth-child(2),
+  .dp-x span:nth-child(4) { display: none; }
+  .dp-table { min-width: 0; }
+  .dp-timeline { min-width: 0; width: 55%; }
+  .dp-dark .rp-stat-value { font-size: 20px; }
+}
