@@ -53,6 +53,9 @@ app.use('/api/widgets', widgetRouter);
 const accountsRouter = require('./routes/accounts');   // ← new
 app.use('/api/accounts', accountsRouter); 
 
+const billsRouter = require('./routes/bills');      // ← new
+app.use('/api/bills', billsRouter);                 // ← new
+
 app.listen(3000, function() {
 	console.log('Server running on http://localhost:3000');
 });
