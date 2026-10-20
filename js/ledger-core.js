@@ -300,6 +300,47 @@ const Ledger = (function() {
     return { start, next, end: addDays(next, -1) };
   }
 
+  // The real deposit for one payday: every income transaction in your
+  // paycheque category from 2 days before to 3 days after it, added up
+  // (so a split deposit still counts as one paycheque). null if none.
+  function paychequeDeposit(settings, transactions, payday) {
+    if (!settings.income_category_id) {
+      return null;
+    }
+    const from = addDays(payday, -2);
+    const to = addDays(payday, 3);
+    const found = transactions.filter(function(t) {
+      return t.category_id === settings.income_category_id && Number(t.amount) > 0 && t.date >= from && t.date <= to;
+    });
+    if (found.length === 0) {
+      return null;
+    }
+    return {
+      amount: found.reduce(function(s, t) { return s + Number(t.amount); }, 0),
+      date: found.map(function(t) { return t.date; }).sort()[0]
+    };
+  }
+
+  // What to expect from a paycheque that hasn't arrived: the average of your
+  // last 3 real ones before `beforeDate`, or the amount you typed in.
+  function estimatePaycheque(settings, transactions, beforeDate) {
+    const past = paydaysBetween(settings, addDays(beforeDate, -200), addDays(beforeDate, -1)).reverse();
+    const amounts = [];
+    for (const day of past) {
+      const deposit = paychequeDeposit(settings, transactions, day);
+      if (deposit) amounts.push(deposit.amount);
+      if (amounts.length === 3) break;
+    }
+    if (amounts.length === 0) {
+      return { amount: Number(settings.amount), source: 'typed', count: 0 };
+    }
+    return {
+      amount: amounts.reduce(function(s, a) { return s + a; }, 0) / amounts.length,
+      source: 'estimate',
+      count: amounts.length
+    };
+  }
+
   // ---------------- subscription detection ----------------
 
   // "NETFLIX.COM 12345" and "Netflix.com #889" both become "netflix com"
@@ -482,7 +523,7 @@ const Ledger = (function() {
         out.push({
           key: `payday:${period.next}`, kind: 'tip', icon: 'ti-coin', date: today,
           title: daysAway === 0 ? 'Payday is today' : `Payday is in ${daysAway} ${daysAway === 1 ? 'day' : 'days'}`,
-          detail: `${formatMoney(Number(paySettings.amount))} on ${formatDate(period.next, { weekday: 'long', month: 'short', day: 'numeric' })}. Your plan for it is ready.`,
+          detail: `About ${formatMoney(estimatePaycheque(paySettings, transactions, period.next).amount)} on ${formatDate(period.next, { weekday: 'long', month: 'short', day: 'numeric' })}. Your plan for it is ready.`,
           action: { label: 'Open paycheque planner', href: 'paycheque.html' }
         });
       }
@@ -588,7 +629,7 @@ const Ledger = (function() {
     isSavingsTransfer, isSpending, isFixedCost,
     BILL_FREQUENCIES, dueDatesBetween, billsBetween,
     accountBalance,
-    PAY_FREQUENCIES, paydaysBetween, currentPayPeriod,
+    PAY_FREQUENCIES, paydaysBetween, currentPayPeriod, paychequeDeposit, estimatePaycheque,
     detectSubscriptions, categoryMonths, buildInsights
   };
 })();

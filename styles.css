@@ -3825,3 +3825,98 @@ button.cal-sq { cursor: pointer; }
   .dp-timeline { min-width: 0; width: 55%; }
   .dp-dark .rp-stat-value { font-size: 20px; }
 }
+
+.pc-source {
+  margin-top: 4px !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: #F1DCC0;
+}
+
+.pc-diff {
+  margin: 4px 0 0 !important;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.pc-diff.is-up { background: var(--positive-bg); color: #2F5640; }
+.pc-diff.is-down { background: #F6EBDD; color: var(--accent-ink); }
+
+/* Month tabs and the paycheques in the picked month */
+.pc-history {
+  display: grid;
+  gap: 10px;
+}
+
+.pc-months {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  background: #E2E0D6;
+  border-radius: 8px;
+  scrollbar-width: none;
+}
+.pc-months::-webkit-scrollbar { display: none; }
+
+.pc-months a {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: #3D4842;
+  font: 500 14px var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pc-months a[aria-current] {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(31, 42, 36, 0.18);
+}
+
+.pc-paychips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pc-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding: 8px 14px;
+  border: 1px solid var(--line, #DAD7CC);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+}
+.pc-chip .rp-mono { color: var(--ink-soft, #5B6760); font-size: 13px; }
+
+.pc-chip[aria-current] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  font-weight: 600;
+}
+
+.pc-history-note {
+  margin: 12px 0 0 !important;
+  font-style: italic;
+}
+
+@media (max-width: 700px) {
+  .pc-paychips {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  .pc-chip { min-width: 0; padding: 8px 10px; }
+}

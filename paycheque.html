@@ -59,14 +59,20 @@
           <button type="button" class="btn btn-secondary" id="pc-edit-btn">Edit pay and savings</button>
         </div>
 
+        <div class="pc-history mb-4">
+          <nav class="pc-months" id="pc-months" aria-label="Months"></nav>
+          <nav class="pc-paychips" id="pc-paychips" aria-label="Paycheques this month"></nav>
+        </div>
+
         <section class="rp-hero pc-hero mb-4">
           <div>
             <p class="rp-hero-label" id="pc-period"></p>
             <p class="pc-amount" id="pc-amount"></p>
+            <p class="pc-source" id="pc-source"></p>
             <p class="pc-sub" id="pc-next"></p>
           </div>
           <div class="pc-hero-right">
-            <p class="pc-sub">Spending money left</p>
+            <p class="pc-sub" id="pc-left-label">Spending money left</p>
             <p class="pc-left" id="pc-left"></p>
             <p class="pc-daily" id="pc-daily"></p>
           </div>
@@ -87,6 +93,10 @@
               <div id="pc-tracker"></div>
             </section>
             <section class="card">
+              <h2 class="rp-card-title" id="pc-month-title">This month</h2>
+              <div id="pc-month"></div>
+            </section>
+            <section class="card">
               <h2 class="rp-card-title">Coming paydays</h2>
               <div id="pc-paydays"></div>
             </section>
@@ -103,7 +113,7 @@
 
       <div class="sl-form-grid">
         <div class="field">
-          <label for="pc-in-amount">Take-home pay</label>
+          <label for="pc-in-amount">Typical take-home pay</label>
           <input type="number" id="pc-in-amount" min="0" step="0.01" inputmode="decimal" />
         </div>
         <div class="field">
@@ -120,6 +130,12 @@
         <label for="pc-in-anchor">A recent payday</label>
         <input type="date" id="pc-in-anchor" />
         <p class="field-hint">Any real payday works; Ledger counts forward and back from it.</p>
+      </div>
+
+      <div class="field">
+        <label for="pc-in-category">Paycheques are logged in</label>
+        <select id="pc-in-category"></select>
+        <p class="field-hint">Ledger uses each real paycheque from this category. Until it has a few, it uses the typical amount above, and after that the average of your last 3.</p>
       </div>
 
       <fieldset class="pc-plan">

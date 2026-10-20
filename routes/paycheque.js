@@ -21,7 +21,7 @@ router.get('/', async function(request, response) {
 // PUT: create or replace your settings (one row per user)
 router.put('/', async function(request, response) {
   try {
-    const { amount, frequency, anchorDate, savingsPlan } = request.body;
+    const { amount, frequency, anchorDate, savingsPlan, incomeCategoryId } = request.body;
     const userId = request.session.userId;
 
     const value = Number(amount);
@@ -33,6 +33,20 @@ router.put('/', async function(request, response) {
     }
     if (typeof anchorDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(anchorDate)) {
       return response.status(400).json({ error: 'Choose a payday' });
+    }
+
+    // Optional: the category your paycheques are logged under. Must be yours.
+    let incomeCategory = null;
+    if (incomeCategoryId !== undefined && incomeCategoryId !== null && incomeCategoryId !== '') {
+      const id = Number(incomeCategoryId);
+      if (!Number.isInteger(id)) {
+        return response.status(400).json({ error: 'Choose one of your categories' });
+      }
+      const owned = await pool.query('SELECT id FROM categories WHERE id = $1 AND user_id = $2', [id, userId]);
+      if (owned.rowCount === 0) {
+        return response.status(400).json({ error: 'Choose one of your categories' });
+      }
+      incomeCategory = id;
     }
 
     // savingsPlan: [{ accountId, amount }] — every account must be one of your savings goals
@@ -59,15 +73,16 @@ router.put('/', async function(request, response) {
 
     // "Upsert": insert, or update the row that's already there
     const result = await pool.query(`
-      INSERT INTO pay_settings (user_id, amount, frequency, anchor_date, savings_plan)
-      VALUES ($1, $2, $3, $4, $5::jsonb)
+      INSERT INTO pay_settings (user_id, amount, frequency, anchor_date, savings_plan, income_category_id)
+      VALUES ($1, $2, $3, $4, $5::jsonb, $6)
       ON CONFLICT (user_id) DO UPDATE
       SET amount = EXCLUDED.amount,
           frequency = EXCLUDED.frequency,
           anchor_date = EXCLUDED.anchor_date,
-          savings_plan = EXCLUDED.savings_plan
+          savings_plan = EXCLUDED.savings_plan,
+          income_category_id = EXCLUDED.income_category_id
       RETURNING *
-    `, [userId, value, frequency, anchorDate, JSON.stringify(cleanPlan)]);
+    `, [userId, value, frequency, anchorDate, JSON.stringify(cleanPlan), incomeCategory]);
     response.json(result.rows[0]);
   } catch (error) {
     console.error(error);
