@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Savings &amp; loans</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="savings.html" class="active"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="flex-between mb-4 page-header">
+        <div>
+          <h1>Savings &amp; loans</h1>
+          <p class="text-soft">Balances update from transactions in each linked category.</p>
+        </div>
+        <div class="sl-header-actions">
+          <button type="button" class="btn btn-secondary" id="add-loan-btn">+ Add loan</button>
+          <button type="button" class="btn btn-primary" id="add-savings-btn">+ Add savings goal</button>
+        </div>
+      </div>
+
+      <div class="sl-summary mb-4">
+        <div class="card sl-stat">
+          <p class="sl-stat-label">Total saved</p>
+          <p class="sl-stat-value sl-positive" id="sl-total-saved">$0.00</p>
+          <p class="sl-stat-note" id="sl-saved-note"></p>
+        </div>
+        <div class="card sl-stat">
+          <p class="sl-stat-label">Total owed</p>
+          <p class="sl-stat-value sl-negative" id="sl-total-owed">$0.00</p>
+          <p class="sl-stat-note" id="sl-owed-note"></p>
+        </div>
+        <div class="card sl-stat sl-stat-net">
+          <p class="sl-stat-label">Net position</p>
+          <p class="sl-stat-value" id="sl-net">$0.00</p>
+          <p class="sl-stat-note">Saved minus owed</p>
+        </div>
+      </div>
+
+      <section class="sl-section">
+        <div class="sl-section-head">
+          <h2>Savings goals</h2>
+          <span class="text-soft" id="sl-savings-count"></span>
+        </div>
+        <div class="sl-grid" id="sl-savings-grid"></div>
+      </section>
+
+      <section class="sl-section">
+        <div class="sl-section-head">
+          <h2>Loans</h2>
+          <span class="text-soft" id="sl-loans-count"></span>
+        </div>
+        <div class="sl-grid" id="sl-loans-grid"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add / edit form -->
+  <div class="sl-modal-backdrop" id="sl-modal" hidden>
+    <form class="sl-modal" id="sl-form" novalidate aria-labelledby="sl-modal-title">
+      <h2 id="sl-modal-title">Add savings goal</h2>
+
+      <fieldset class="sl-kind-toggle">
+        <legend class="sl-visually-hidden">Type</legend>
+        <label><input type="radio" name="sl-kind" value="savings" checked /><span>Savings goal</span></label>
+        <label><input type="radio" name="sl-kind" value="loan" /><span>Loan</span></label>
+      </fieldset>
+
+      <div class="field">
+        <label for="sl-name">Name</label>
+        <input type="text" id="sl-name" maxlength="60" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="sl-category">Linked category</label>
+        <select id="sl-category"></select>
+        <p class="field-hint" id="sl-category-hint"></p>
+      </div>
+
+      <div class="sl-form-grid">
+        <div class="field">
+          <label for="sl-target" id="sl-target-label">Goal amount</label>
+          <input type="number" id="sl-target" min="0" step="0.01" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="sl-starting" id="sl-starting-label">Already saved</label>
+          <input type="number" id="sl-starting" min="0" step="0.01" inputmode="decimal" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="sl-start-date">Count transactions from</label>
+        <input type="date" id="sl-start-date" />
+        <p class="field-hint" id="sl-start-hint">Enter the amount above as it was on this date. Transactions before it are ignored so nothing is counted twice.</p>
+      </div>
+
+      <div class="sl-form-grid" id="sl-loan-fields" hidden>
+        <div class="field">
+          <label for="sl-rate">Interest rate (%)</label>
+          <input type="number" id="sl-rate" min="0" max="100" step="0.01" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="sl-payment">Monthly payment</label>
+          <input type="number" id="sl-payment" min="0" step="0.01" inputmode="decimal" />
+        </div>
+      </div>
+
+      <p class="sl-form-error" id="sl-form-error" role="alert"></p>
+
+      <div class="sl-modal-actions">
+        <button type="button" class="btn btn-danger" id="sl-delete-btn" hidden>Delete</button>
+        <span class="sl-spacer"></span>
+        <button type="button" class="btn btn-secondary" id="sl-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="sl-save-btn">Save</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/savings.js"></script>
+</html>
