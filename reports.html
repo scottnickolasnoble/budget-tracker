@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Reports</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="reports.html" class="active"><i class="ti ti-report-analytics" aria-hidden="true"></i><span>Reports</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="rp-top mb-4">
+        <div class="rp-tabs" role="tablist" aria-label="Reports">
+          <button type="button" role="tab" id="tab-report" aria-controls="rp-report" aria-selected="true" data-tab="report">Monthly report</button>
+          <button type="button" role="tab" id="tab-networth" aria-controls="rp-networth" aria-selected="false" data-tab="networth">Net worth</button>
+        </div>
+      </div>
+
+      <!-- ================= Monthly report ================= -->
+      <section id="rp-report" role="tabpanel" aria-labelledby="tab-report">
+
+        <div class="rp-toolbar mb-4">
+          <div class="rp-month-nav">
+            <button type="button" id="rp-prev" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+            <span id="rp-month-label"></span>
+            <button type="button" id="rp-next" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          </div>
+          <button type="button" class="btn btn-secondary" id="rp-print">Print / save PDF</button>
+        </div>
+
+        <div id="rp-empty" class="card mb-4" hidden>
+          <p class="text-soft" style="margin:0;">No transactions in this month yet.</p>
+        </div>
+
+        <div id="rp-body">
+          <div class="rp-hero mb-4">
+            <p class="rp-hero-label" id="rp-hero-label"></p>
+            <h1 id="rp-hero-title"></h1>
+            <p id="rp-hero-sub"></p>
+          </div>
+
+          <div class="rp-kpis mb-4" id="rp-kpis"></div>
+
+          <div class="card mb-4">
+            <h2 class="rp-card-title">What stood out</h2>
+            <div id="rp-highlights"></div>
+          </div>
+
+          <div class="rp-layout">
+            <div class="card rp-main">
+              <div class="rp-card-head">
+                <h2 class="rp-card-title">Where it went</h2>
+                <span class="text-soft" id="rp-cats-compare"></span>
+              </div>
+              <div id="rp-cats"></div>
+            </div>
+
+            <aside class="rp-side">
+              <div class="card" id="rp-limits-card">
+                <h2 class="rp-card-title">Category limits</h2>
+                <div id="rp-limits"></div>
+              </div>
+              <div class="card">
+                <h2 class="rp-card-title">Biggest purchases</h2>
+                <div id="rp-biggest"></div>
+              </div>
+              <div class="card" id="rp-bills-card">
+                <h2 class="rp-card-title">Bills</h2>
+                <div id="rp-bills"></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Net worth ================= -->
+      <section id="rp-networth" role="tabpanel" aria-labelledby="tab-networth" hidden>
+
+        <div id="nw-empty" class="card" hidden>
+          <p class="text-soft" style="margin:0 0 12px;">Net worth is built from your savings goals and loans. Add some on the Savings page first.</p>
+          <a class="btn btn-primary" href="savings.html">Go to Savings</a>
+        </div>
+
+        <div id="nw-body">
+          <div class="card mb-4">
+            <div class="nw-head">
+              <div>
+                <p class="rp-stat-label">Net worth · saved minus owed</p>
+                <p class="nw-value" id="nw-value"></p>
+                <p class="nw-change" id="nw-change"></p>
+              </div>
+              <div class="nw-controls">
+                <div class="rp-segment" role="group" aria-label="Time range" id="nw-ranges">
+                  <button type="button" data-range="6">6 months</button>
+                  <button type="button" data-range="12">1 year</button>
+                  <button type="button" data-range="all">All</button>
+                </div>
+                <label class="nw-check">
+                  <input type="checkbox" id="nw-projection" checked />
+                  Show projection
+                </label>
+              </div>
+            </div>
+            <div class="nw-chart">
+              <canvas id="nw-chart" role="img" aria-label="Line chart of your net worth by month"></canvas>
+            </div>
+            <p class="text-soft rp-small" id="nw-note"></p>
+          </div>
+
+          <div class="rp-layout">
+            <div class="card rp-main rp-table-card">
+              <div class="rp-card-head">
+                <h2 class="rp-card-title" id="nw-table-title">What changed</h2>
+                <a href="savings.html" class="rp-small">Open Savings</a>
+              </div>
+              <div class="rp-table-scroll">
+                <table class="ledger-table nw-table">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th class="rp-num" id="nw-col-before">Before</th>
+                      <th class="rp-num">Now</th>
+                      <th class="rp-num">Effect on net worth</th>
+                    </tr>
+                  </thead>
+                  <tbody id="nw-accounts"></tbody>
+                  <tfoot id="nw-accounts-foot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <aside class="rp-side">
+              <div class="card">
+                <h2 class="rp-card-title">Saved vs owed</h2>
+                <div id="nw-split"></div>
+              </div>
+              <div class="card">
+                <h2 class="rp-card-title">Milestones</h2>
+                <div id="nw-milestones"></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/reports.js"></script>
+</html>
