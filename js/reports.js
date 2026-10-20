@@ -799,18 +799,294 @@ function renderMilestones(history, pace) {
   document.getElementById('nw-milestones').innerHTML = html;
 }
 
+// ======================= spending calendar =======================
+
+let calMonth = todayString().slice(0, 7);
+let calDay = todayString();
+let calHideFixed = true;
+
+// The spending that counts on the calendar for one day.
+function calItems(date) {
+  return transactions.filter(function(t) {
+    return t.date === date && isSpending(t) && !(calHideFixed && isFixedCost(t));
+  });
+}
+
+// { 'YYYY-MM-DD': total } for every day with spending
+function calTotalsByDay() {
+  const totals = {};
+  transactions.forEach(function(t) {
+    if (isSpending(t) && !(calHideFixed && isFixedCost(t))) {
+      totals[t.date] = (totals[t.date] ?? 0) + Math.abs(Number(t.amount));
+    }
+  });
+  return totals;
+}
+
+// Shade levels come from YOUR spending: a quarter of your spending days
+// land in each of the 4 shades, so the colours stay useful whether a
+// normal day for you is $20 or $200.
+function calThresholds(totals) {
+  const values = Object.values(totals).filter(function(v) { return v > 0; }).sort(function(a, b) { return a - b; });
+  if (values.length === 0) {
+    return [Infinity, Infinity, Infinity];
+  }
+  const at = function(p) { return values[Math.min(values.length - 1, Math.floor(values.length * p))]; };
+  return [at(0.25), at(0.5), at(0.75)];
+}
+
+function calLevel(value, thresholds) {
+  if (!value) return 0;
+  if (value < thresholds[0]) return 1;
+  if (value < thresholds[1]) return 2;
+  if (value < thresholds[2]) return 3;
+  return 4;
+}
+
+// First day we have data for (no point counting "no-spend days" before you started)
+function calDataStart() {
+  const first = transactions.map(function(t) { return t.date; }).sort()[0];
+  const yearAgo = addDays(todayString(), -364);
+  return first && first > yearAgo ? first : yearAgo;
+}
+
+function renderCalStats(totals, start) {
+  const today = todayString();
+  let days = 0;
+  let sum = 0;
+  let zero = 0;
+  let streak = 0;
+  let best = 0;
+  let biggest = { date: null, value: 0 };
+
+  for (let d = start; d <= today; d = addDays(d, 1)) {
+    const v = totals[d] ?? 0;
+    days++;
+    sum += v;
+    if (v === 0) {
+      zero++;
+      streak++;
+      best = Math.max(best, streak);
+    } else {
+      streak = 0;
+    }
+    if (v > biggest.value) {
+      biggest = { date: d, value: v };
+    }
+  }
+
+  const tiles = [
+    { label: 'Average day', value: formatMoney(sum / days), note: calHideFixed ? 'not counting bills' : 'including bills' },
+    { label: 'No-spend days', value: String(zero), note: `out of ${days} days` },
+    { label: 'Longest no-spend streak', value: `${best} ${best === 1 ? 'day' : 'days'}`, note: 'in a row' },
+    {
+      label: 'Biggest day',
+      value: formatMoney(biggest.value),
+      note: biggest.date
+        ? toDate(biggest.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+        : '—'
+    }
+  ];
+
+  document.getElementById('cal-stats').innerHTML = tiles.map(function(t) {
+    return `
+      <div class="card">
+        <p class="rp-stat-label">${t.label}</p>
+        <p class="rp-stat-value">${t.value}</p>
+        <p class="rp-stat-note text-soft">${t.note}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// 52 columns (weeks, Sunday on top) ending with this week.
+function renderCalHeatmap(totals, thresholds, start) {
+  const today = todayString();
+  const thisSunday = addDays(today, -toDate(today).getUTCDay());
+  const firstSunday = addDays(thisSunday, -51 * 7);
+
+  let labels = '';
+  let columns = '';
+  for (let w = 0; w < 52; w++) {
+    let label = '';
+    let cells = '';
+    for (let r = 0; r < 7; r++) {
+      const date = addDays(firstSunday, w * 7 + r);
+      if (date.endsWith('-01')) {
+        label = monthName(date.slice(0, 7), 'short');
+      }
+      if (date > today || date < start) {
+        cells += '<span class="cal-sq cal-off"></span>';
+        continue;
+      }
+      const v = totals[date] ?? 0;
+      const selected = date === calDay ? ' is-selected' : '';
+      cells += `<button type="button" class="cal-sq cal-l${calLevel(v, thresholds)}${selected}" data-date="${date}" aria-label="${shortDate(date)}: ${formatMoney(v)}"></button>`;
+    }
+    labels += `<span>${label}</span>`;
+    columns += `<div class="cal-col">${cells}</div>`;
+  }
+
+  document.getElementById('cal-heat').innerHTML = `
+    <div class="cal-months" aria-hidden="true"><span></span>${labels}</div>
+    <div class="cal-grid">
+      <div class="cal-days" aria-hidden="true"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+      ${columns}
+    </div>
+  `;
+
+  // On a phone the heatmap scrolls sideways; start at the newest weeks.
+  const scroller = document.getElementById('cal-heat-scroll');
+  scroller.scrollLeft = scroller.scrollWidth;
+}
+
+function renderCalMonth(totals, thresholds, start) {
+  const today = todayString();
+  document.getElementById('cal-month-title').textContent = monthYear(calMonth);
+  document.getElementById('cal-prev').disabled = calMonth <= start.slice(0, 7);
+  document.getElementById('cal-next').disabled = calMonth >= today.slice(0, 7);
+
+  const firstDay = calMonth + '-01';
+  const last = monthEnd(calMonth);
+  let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function(d) {
+    return `<span class="cal-weekday" aria-hidden="true">${d}</span>`;
+  }).join('');
+
+  for (let i = 0; i < toDate(firstDay).getUTCDay(); i++) {
+    html += '<span></span>';
+  }
+
+  let monthTotal = 0;
+  let noSpend = 0;
+  for (let date = firstDay; date <= last; date = addDays(date, 1)) {
+    const day = Number(date.slice(8));
+    const future = date > today;
+    const v = totals[date] ?? 0;
+    if (!future && date >= start) {
+      monthTotal += v;
+      if (v === 0) noSpend++;
+    }
+    const classes = ['cal-day', `cal-l${future ? 'f' : calLevel(v, thresholds)}`];
+    if (date === calDay) classes.push('is-selected');
+    if (date === today) classes.push('is-today');
+    const amount = future ? '' : v === 0 ? '—' : (v >= 1000 ? '$' + (v / 1000).toFixed(1) + 'k' : '$' + Math.round(v));
+    html += `
+      <button type="button" class="${classes.join(' ')}" data-date="${date}" ${future ? 'disabled' : ''} aria-label="${shortDate(date)}${future ? '' : ': ' + formatMoney(v)}">
+        <span>${day}</span>
+        <span class="cal-amount">${amount}</span>
+      </button>
+    `;
+  }
+
+  document.getElementById('cal-month').innerHTML = html;
+  document.getElementById('cal-month-summary').textContent =
+    `${formatMoney(monthTotal)} spent · ${noSpend} no-spend ${noSpend === 1 ? 'day' : 'days'}${calMonth === today.slice(0, 7) ? ' so far' : ''}`;
+}
+
+function renderCalDay(totals, start) {
+  const items = calItems(calDay);
+  const total = items.reduce(function(sum, t) { return sum + Math.abs(Number(t.amount)); }, 0);
+
+  // Average for the same weekday across your data
+  const weekday = toDate(calDay).getUTCDay();
+  let sameDays = 0;
+  let sameSum = 0;
+  for (let d = start; d <= todayString(); d = addDays(d, 1)) {
+    if (toDate(d).getUTCDay() === weekday) {
+      sameDays++;
+      sameSum += totals[d] ?? 0;
+    }
+  }
+  const weekdayName = toDate(calDay).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+  const title = toDate(calDay).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+  const list = items.length
+    ? items.map(function(t) {
+        const category = findCategory(t.category_id);
+        return `
+          <div class="rp-list-row">
+            <div>
+              <p class="rp-list-name">${escapeHTML(t.description)}</p>
+              <p class="text-soft rp-small cal-cat"><span class="sl-dot" style="background:${escapeHTML(category?.color ?? '#B4B2A9')};"></span>${escapeHTML(category?.name ?? 'Uncategorized')}${isFixedCost(t) ? ' · bill' : ''}</p>
+            </div>
+            <span class="rp-mono">${formatMoney(Number(t.amount))}</span>
+          </div>
+        `;
+      }).join('')
+    : '<p class="cal-nospend">No spending this day.</p>';
+
+  document.getElementById('cal-day').innerHTML = `
+    <p class="rp-stat-label">${title}</p>
+    <p class="cal-day-total">${formatMoney(total)}</p>
+    <p class="text-soft rp-small" style="margin:2px 0 12px;">${sameDays ? `Your average ${weekdayName} is ${formatMoney(sameSum / sameDays)}` : ''}</p>
+    ${list}
+    <a class="btn btn-secondary cal-open" href="transactions.html?date=${calDay}">Open in Transactions</a>
+  `;
+}
+
+function renderCalendar() {
+  const hasSpending = transactions.some(isSpending);
+  document.getElementById('cal-empty').hidden = hasSpending;
+  document.getElementById('cal-body').hidden = !hasSpending;
+  if (!hasSpending) {
+    return;
+  }
+  const totals = calTotalsByDay();
+  const thresholds = calThresholds(totals);
+  const start = calDataStart();
+  renderCalStats(totals, start);
+  renderCalHeatmap(totals, thresholds, start);
+  renderCalMonth(totals, thresholds, start);
+  renderCalDay(totals, start);
+}
+
+document.getElementById('rp-calendar').addEventListener('click', function(event) {
+  const cell = event.target.closest('[data-date]');
+  if (!cell || cell.disabled) {
+    return;
+  }
+  calDay = cell.dataset.date;
+  calMonth = calDay.slice(0, 7);
+  renderCalendar();
+});
+
+document.getElementById('cal-prev').addEventListener('click', function() {
+  calMonth = shiftMonth(calMonth, -1);
+  renderCalendar();
+});
+
+document.getElementById('cal-next').addEventListener('click', function() {
+  if (calMonth < todayString().slice(0, 7)) {
+    calMonth = shiftMonth(calMonth, 1);
+    renderCalendar();
+  }
+});
+
+document.getElementById('cal-hide-fixed').addEventListener('change', function() {
+  calHideFixed = this.checked;
+  renderCalendar();
+});
+
 // ======================= tabs & events =======================
 
+const TABS = ['report', 'networth', 'calendar'];
+
 function showTab(tab) {
-  const isReport = tab !== 'networth';
-  document.getElementById('rp-report').hidden = !isReport;
-  document.getElementById('rp-networth').hidden = isReport;
-  document.getElementById('tab-report').setAttribute('aria-selected', String(isReport));
-  document.getElementById('tab-networth').setAttribute('aria-selected', String(!isReport));
-  // Remember the tab in the address, so reports.html#networth opens it directly
-  history.replaceState(null, '', isReport ? '#report' : '#networth');
-  if (!isReport) {
+  if (!TABS.includes(tab)) {
+    tab = 'report';
+  }
+  TABS.forEach(function(name) {
+    document.getElementById('rp-' + name).hidden = name !== tab;
+    document.getElementById('tab-' + name).setAttribute('aria-selected', String(name === tab));
+  });
+  document.getElementById('cal-fixed-wrap').hidden = tab !== 'calendar';
+  // Remember the tab in the address, so reports.html#calendar opens it directly
+  history.replaceState(null, '', '#' + tab);
+
+  if (tab === 'networth') {
     renderNetWorth(); // Chart.js needs the canvas visible to size itself
+  } else if (tab === 'calendar') {
+    renderCalendar();
   }
 }
 
@@ -868,7 +1144,7 @@ async function init() {
     getJSON('/api/accounts')
   ]);
   renderReport();
-  showTab(location.hash === '#networth' ? 'networth' : 'report');
+  showTab(location.hash.slice(1));
 }
 
 init();

@@ -41,7 +41,12 @@
         <div class="rp-tabs" role="tablist" aria-label="Reports">
           <button type="button" role="tab" id="tab-report" aria-controls="rp-report" aria-selected="true" data-tab="report">Monthly report</button>
           <button type="button" role="tab" id="tab-networth" aria-controls="rp-networth" aria-selected="false" data-tab="networth">Net worth</button>
+          <button type="button" role="tab" id="tab-calendar" aria-controls="rp-calendar" aria-selected="false" data-tab="calendar">Calendar</button>
         </div>
+        <label class="nw-check" id="cal-fixed-wrap" hidden>
+          <input type="checkbox" id="cal-hide-fixed" checked />
+          Leave out bills and loan payments
+        </label>
       </div>
 
       <!-- ================= Monthly report ================= -->
@@ -166,6 +171,54 @@
                 <h2 class="rp-card-title">Milestones</h2>
                 <div id="nw-milestones"></div>
               </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Spending calendar ================= -->
+      <section id="rp-calendar" role="tabpanel" aria-labelledby="tab-calendar" hidden>
+
+        <div id="cal-empty" class="card" hidden>
+          <p class="text-soft" style="margin:0;">No spending logged yet. Add some transactions and they'll show up here.</p>
+        </div>
+
+        <div id="cal-body">
+          <div class="rp-kpis mb-4" id="cal-stats"></div>
+
+          <div class="card mb-4">
+            <div class="rp-card-head">
+              <h2 class="rp-card-title">The last 12 months</h2>
+              <div class="cal-legend" aria-hidden="true">
+                <span>Less</span>
+                <span class="cal-sq cal-l0"></span>
+                <span class="cal-sq cal-l1"></span>
+                <span class="cal-sq cal-l2"></span>
+                <span class="cal-sq cal-l3"></span>
+                <span class="cal-sq cal-l4"></span>
+                <span>More</span>
+              </div>
+            </div>
+            <div class="cal-heat-scroll" id="cal-heat-scroll">
+              <div class="cal-heat" id="cal-heat"></div>
+            </div>
+          </div>
+
+          <div class="rp-layout">
+            <div class="card rp-main">
+              <div class="cal-month-head">
+                <button type="button" class="cal-nav-btn" id="cal-prev" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+                <div>
+                  <h2 id="cal-month-title"></h2>
+                  <p class="text-soft rp-small" id="cal-month-summary"></p>
+                </div>
+                <button type="button" class="cal-nav-btn" id="cal-next" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+              </div>
+              <div class="cal-month" id="cal-month"></div>
+            </div>
+
+            <aside class="rp-side">
+              <div class="card" id="cal-day"></div>
             </aside>
           </div>
         </div>
