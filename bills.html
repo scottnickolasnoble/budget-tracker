@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Bills</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <div class="mobile-topbar">
+      <span>Ledger</span>
+      <button type="button" class="logout-btn topbar-logout" aria-label="Log out">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="ledger-tabs">
+      <div class="brand">Ledger</div>
+      <a href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></a>
+      <a href="transactions.html"><i class="ti ti-list-details" aria-hidden="true"></i><span>Transactions</span></a>
+      <a href="categories.html"><i class="ti ti-tags" aria-hidden="true"></i><span>Categories</span></a>
+      <a href="bills.html" class="active"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+      <a href="savings.html"><i class="ti ti-pig-money" aria-hidden="true"></i><span>Savings</span></a>
+      <a href="settings.html"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></a>
+      <button type="button" class="logout-btn nav-logout">
+        <i class="ti ti-logout" aria-hidden="true"></i><span>Log out</span>
+      </button>
+    </nav>
+
+    <main class="main-content">
+
+      <div class="flex-between mb-4 page-header">
+        <div>
+          <h1>Bills</h1>
+          <p class="text-soft">A bill is marked paid when a matching transaction shows up in its category.</p>
+        </div>
+        <div class="sl-header-actions">
+          <div class="bl-month-nav">
+            <button type="button" id="bl-prev-month" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+            <span id="bl-month-label"></span>
+            <button type="button" id="bl-next-month" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          </div>
+          <button type="button" class="btn btn-primary" id="bl-add-btn">+ Add bill</button>
+        </div>
+      </div>
+
+      <div class="bl-summary mb-4">
+        <div class="card">
+          <p class="bl-stat-label" id="bl-left-label">Left to pay</p>
+          <p class="bl-stat-value" id="bl-left">$0.00</p>
+          <p class="bl-stat-note" id="bl-left-note"></p>
+        </div>
+        <div class="card">
+          <p class="bl-stat-label">Paid so far</p>
+          <p class="bl-stat-value bl-positive" id="bl-paid">$0.00</p>
+          <div class="bl-mini-bar"><div id="bl-paid-bar"></div></div>
+          <p class="bl-stat-note" id="bl-paid-note"></p>
+        </div>
+        <div class="card">
+          <p class="bl-stat-label">Fixed costs per month</p>
+          <p class="bl-stat-value" id="bl-per-month">$0.00</p>
+          <p class="bl-stat-note" id="bl-per-month-note"></p>
+        </div>
+        <div class="card">
+          <p class="bl-stat-label">Per year</p>
+          <p class="bl-stat-value" id="bl-per-year">$0.00</p>
+          <p class="bl-stat-note" id="bl-biggest"></p>
+        </div>
+      </div>
+
+      <div class="bl-layout">
+        <div class="bl-list" id="bl-upcoming"></div>
+
+        <aside class="bl-side">
+          <div class="card">
+            <div class="bl-cal-head">
+              <h2 id="bl-cal-title"></h2>
+              <div class="bl-legend">
+                <span><span class="bl-legend-dot bl-dot-paid"></span>Paid</span>
+                <span><span class="bl-legend-dot bl-dot-due"></span>Due</span>
+                <span><span class="bl-legend-dot bl-dot-late"></span>Late</span>
+              </div>
+            </div>
+            <div class="bl-cal-grid" id="bl-cal-grid"></div>
+            <p class="bl-cal-note"><span class="bl-underline-sample"></span>Underlined days have transactions</p>
+          </div>
+
+          <div class="card bl-day" id="bl-day"></div>
+        </aside>
+      </div>
+
+      <section class="bl-all">
+        <div class="bl-all-head">
+          <div class="bl-all-title">
+            <h2>All bills</h2>
+            <span class="text-soft" id="bl-all-total"></span>
+          </div>
+          <div class="bl-all-controls">
+            <div class="bl-filters" id="bl-filters"></div>
+            <label for="bl-sort" class="text-soft">Sort</label>
+            <select id="bl-sort">
+              <option value="yearly">Yearly cost</option>
+              <option value="next">Next due</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+        </div>
+        <div class="card bl-table-wrap">
+          <table class="ledger-table bl-table">
+            <thead>
+              <tr>
+                <th>Bill</th>
+                <th>Category</th>
+                <th>How often</th>
+                <th class="bl-num">Amount</th>
+                <th class="bl-num">Per month</th>
+                <th class="bl-num">Per year</th>
+                <th>Next due</th>
+                <th><span class="sl-visually-hidden">Edit</span></th>
+              </tr>
+            </thead>
+            <tbody id="bl-table-body"></tbody>
+            <tfoot id="bl-table-foot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add / edit bill -->
+  <div class="sl-modal-backdrop" id="bl-modal" hidden>
+    <form class="sl-modal" id="bl-form" novalidate aria-labelledby="bl-modal-title">
+      <h2 id="bl-modal-title">Add bill</h2>
+
+      <div class="field">
+        <label for="bl-name">Name</label>
+        <input type="text" id="bl-name" maxlength="60" autocomplete="off" />
+      </div>
+
+      <div class="sl-form-grid">
+        <div class="field">
+          <label for="bl-amount">Amount</label>
+          <input type="number" id="bl-amount" min="0" step="0.01" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="bl-category">Category</label>
+          <select id="bl-category"></select>
+        </div>
+        <div class="field">
+          <label for="bl-frequency">How often</label>
+          <select id="bl-frequency">
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Every 2 weeks</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="quarterly">Every 3 months</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bl-anchor">Next due date</label>
+          <input type="date" id="bl-anchor" />
+        </div>
+      </div>
+
+      <div class="bl-checks">
+        <label>
+          <input type="checkbox" id="bl-autopay" />
+          <span><strong>Auto-pay</strong><small>Comes out on its own.</small></span>
+        </label>
+        <label>
+          <input type="checkbox" id="bl-varies" />
+          <span><strong>Amount changes each time</strong><small>Like hydro. Any amount in this category counts as paying it.</small></span>
+        </label>
+      </div>
+
+      <p class="field-hint" id="bl-match-hint"></p>
+      <p class="sl-form-error" id="bl-form-error" role="alert"></p>
+
+      <div class="sl-modal-actions">
+        <button type="button" class="btn btn-danger" id="bl-delete-btn" hidden>Delete</button>
+        <span class="sl-spacer"></span>
+        <button type="button" class="btn btn-secondary" id="bl-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save bill</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+<script src="js/nav.js"></script>
+<script src="js/bills.js"></script>
+</html>

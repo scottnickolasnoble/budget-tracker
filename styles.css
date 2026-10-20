@@ -1139,3 +1139,561 @@ width: 100%;
     display: none;
   }
 }
+
+.bl-positive { color: var(--positive); }
+.bl-negative { color: var(--negative) !important; }
+.bl-mono { font-family: var(--font-mono); }
+.bl-num { text-align: right; }
+.bl-small { font-size: 13px; margin: 0; }
+
+/* Month switcher in the header */
+.bl-month-nav {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.bl-month-nav button {
+  width: 44px;
+  height: 42px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.bl-month-nav span {
+  min-width: 120px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Summary cards */
+.bl-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+
+.bl-summary p { margin: 0; }
+
+.bl-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 var(--space-2) !important;
+}
+
+.bl-stat-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.bl-stat-note {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 6px !important;
+}
+
+.bl-mini-bar {
+  height: 6px;
+  margin-top: 10px;
+  background: var(--paper);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bl-mini-bar div {
+  height: 100%;
+  background: var(--positive);
+  transition: width var(--transition);
+}
+
+/* List on the left, calendar on the right */
+.bl-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+}
+
+.bl-list {
+  flex: 999 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.bl-side {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Upcoming groups and rows */
+.bl-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.bl-group-head h2 { margin: 0; font-size: 20px; }
+.bl-group-head span { font-size: 13px; }
+
+.bl-rows {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.bl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: 13px 18px;
+  border-top: 1px solid var(--line);
+}
+
+.bl-row:first-child { border-top: 0; }
+
+.bl-date {
+  width: 46px;
+  flex-shrink: 0;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  padding: 5px 0;
+  line-height: 1.1;
+}
+
+.bl-date span {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.bl-date strong { font-size: 17px; }
+
+.bl-row-main {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.bl-row-main p { margin: 0; }
+.bl-row-name { font-size: 15px; font-weight: 600; }
+
+.bl-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px !important;
+  font-size: 12px;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.bl-row-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.bl-row-amount {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  min-width: 84px;
+  text-align: right;
+}
+
+.bl-row-btn {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+}
+
+/* Status chips: colors pass 4.5:1 contrast on their backgrounds */
+.bl-chip {
+  min-width: 96px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bl-chip-paid  { background: var(--positive-bg); color: #2F5640; }
+.bl-chip-soon  { background: #F6EBDD; color: var(--accent-ink); }
+.bl-chip-late  { background: var(--negative-bg); color: #8E3B2F; }
+.bl-chip-later { background: var(--paper); color: var(--ink-soft); }
+
+.bl-paid-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  font: 500 14px var(--font-body);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.bl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.bl-empty p { margin: 0; }
+
+/* Calendar */
+.bl-cal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.bl-cal-head h2 { margin: 0; font-size: 18px; }
+
+.bl-legend {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.bl-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bl-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.bl-dot-paid { background: var(--positive); }
+.bl-dot-due  { background: var(--accent); }
+.bl-dot-late { background: var(--negative); }
+
+.bl-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  text-align: center;
+}
+
+.bl-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding-bottom: 4px;
+}
+
+.bl-day-btn {
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font: 500 13px var(--font-body);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.bl-day-btn:hover { background: var(--paper); }
+.bl-day-btn.is-past { color: var(--ink-soft); }
+.bl-day-btn.is-today { background: #F6EBDD; color: var(--ink); font-weight: 700; }
+.bl-day-btn.is-selected { box-shadow: inset 0 0 0 2px var(--ink); }
+
+/* Underline under days that have transactions */
+.bl-day-btn.has-tx > span:first-child {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.bl-dots {
+  display: flex;
+  gap: 2px;
+  height: 6px;
+}
+
+.bl-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.bl-cal-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-3) 0 0;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.bl-underline-sample {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink-soft);
+}
+
+/* Selected day panel */
+.bl-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bl-day-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.bl-day-head h3 { margin: 0; font-family: var(--font-display, Fraunces, serif); font-size: 18px; }
+
+.bl-today-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-ink);
+}
+
+.bl-day-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bl-day-split {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.bl-day-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.bl-day-bill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bl-day-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bl-day-bill .bl-chip { min-width: 0; font-size: 11px; padding: 2px 8px; }
+
+.bl-day-tx {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bl-day-tx-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.bl-day-tx-main p {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bl-day-tx-main p.text-soft {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.bl-day-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.bl-day-actions .btn {
+  flex: 1 1 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+/* All bills table */
+.bl-all-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.bl-all-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.bl-all-title h2 { margin: 0; }
+.bl-all-title span { font-size: 13px; }
+
+.bl-all-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.bl-all-controls label { font-size: 13px; margin-left: var(--space-2); }
+
+.bl-all-controls select {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font: 400 13px var(--font-body);
+  color: var(--ink);
+}
+
+.bl-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bl-filter {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 13px var(--font-body);
+  cursor: pointer;
+}
+
+.bl-filter.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+.bl-table-wrap {
+  padding: 0 !important;
+  overflow-x: auto;
+}
+
+.bl-table { min-width: 860px; }
+.bl-table td { vertical-align: middle; }
+
+.bl-table-note {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.bl-table tfoot td {
+  padding: var(--space-3);
+  border-top: 2px solid var(--ink);
+}
+
+.bl-soon-text {
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 768px) {
+
+  .bl-month-nav { flex: 1 1 100%; justify-content: space-between; }
+
+  .bl-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .bl-stat-value { font-size: 18px; }
+  .bl-stat-label { font-size: 10px; }
+
+  /* Phone rows: date | name | amount + status stacked,
+     with the Mark paid button on a second line under the name */
+  .bl-row {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    padding: 12px 14px;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .bl-row-end {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .bl-row-amount { min-width: 0; }
+  .bl-row .bl-chip { min-width: 0; font-size: 11px; padding: 2px 8px; }
+
+  .bl-row-btn {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+
+  /* Calendar goes under the list, full width */
+  .bl-side { flex-basis: 100%; }
+
+  /* Table turns into cards using your existing phone table styles */
+  .bl-table { min-width: 0; }
+  .bl-table-wrap { padding: var(--space-3) !important; background: transparent; box-shadow: none; }
+  .bl-table tfoot { display: none; }
+  .bl-all-controls label { margin-left: 0; }
+}
